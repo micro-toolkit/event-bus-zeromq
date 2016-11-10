@@ -1,0 +1,20 @@
+sudo: required
+dist: trusty
+cache:
+  apt: true
+language: node_js
+node_js:
+  - 4
+  - 5
+  - 6
+before_script:
+  - npm install -d
+branches:
+  only:
+    - master
+script:
+  - npm test
+addons:
+  apt:
+    packages:
+      - libzmq3-dev
