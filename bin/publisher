@@ -1,0 +1,39 @@
+#!/usr/bin/env node
+
+var _ = require('lodash')
+
+var help = {
+  'a': 'Event Bus Address',
+  'p': 'Producer identifier',
+  't': 'Topic used to publish events',
+  'i': 'Publish interval (in ms)'
+}
+
+var defaults = {
+  address: 'tcp://127.0.0.1:5558',
+  producerId: 'command_line_producer',
+  topic: '/examples/producer',
+  interval: 1000,
+  data: ["random data"]
+}
+
+var argv = require('./setup')('bin/publisher', help, defaults)
+
+var conf = {
+  address: argv.a,
+  producerId: argv.p,
+  topic: argv.t,
+  interval: argv.i,
+  data: argv._.length > 0 ? argv._ : undefined
+}
+
+var params = _.defaults({}, conf, defaults)
+var config = _.pick(params, ['address', 'producerId'])
+var publisherFactory = require('../lib/publisher')
+var publisher = publisherFactory.getInstance(config)
+
+setInterval(function(){
+  params.data.forEach(function(data){
+    publisher.send(params.topic, data)
+  })
+}, params.interval)
