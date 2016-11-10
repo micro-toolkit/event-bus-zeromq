@@ -1,0 +1,9 @@
+---
+engines:
+  fixme:
+    enabled: true
+  eslint:
+    enabled: false
+ratings:
+  paths: []
+exclude_paths: []
