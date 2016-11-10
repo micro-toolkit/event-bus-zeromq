@@ -1,4 +1,7 @@
 [![Build Status](https://travis-ci.org/micro-toolkit/event-bus-zeromq.svg?branch=master)](https://travis-ci.org/micro-toolkit/event-bus-zeromq)
+[![Code Climate](https://codeclimate.com/github/micro-toolkit/event-bus-zeromq/badges/gpa.svg)](https://codeclimate.com/github/micro-toolkit/event-bus-zeromq)
+[![Test Coverage](https://codeclimate.com/github/micro-toolkit/event-bus-zeromq/badges/coverage.svg)](https://codeclimate.com/github/micro-toolkit/event-bus-zeromq/coverage)
+[![Issue Count](https://codeclimate.com/github/micro-toolkit/event-bus-zeromq/badges/issue_count.svg)](https://codeclimate.com/github/micro-toolkit/event-bus-zeromq)
 
 # Micro-toolkit Event BUS
 
