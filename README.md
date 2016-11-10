@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/micro-toolkit/event-bus-zeromq.svg?branch=master)](https://travis-ci.org/micro-toolkit/event-bus-zeromq)
+
 # Micro-toolkit Event BUS
 
 Micro-toolkit only supported REQ/REP flows, this type of flow is very useful to expose the microservices in facade API's and even used to communicate between microservices. Over time using REQ/REP patterns to choreograph the communication between microservices isn't enough. On this case a event driven approach can allow you to solve this communication in a more scalable and less complex way.
