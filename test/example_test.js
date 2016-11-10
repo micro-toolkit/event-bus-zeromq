@@ -1,5 +1,7 @@
+var target = require('../index')
+
 describe('Example spec', function () {
   it('should pass', function () {
-    "abc".should.be.eql("abc")
+    target().should.be.eql("hello")
   })
 })
