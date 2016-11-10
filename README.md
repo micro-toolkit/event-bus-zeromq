@@ -21,3 +21,26 @@ Well we do have reference protocols and patterns on ØMQ guide, but they didn't 
 This implementation will be using a centralized event bus, why? Well, fully distributed architectures can be quite complex and require a lot of other tools to accomplish it. The goal here is to keep a balance between complexity and minimal setup required. Yes, we do know that is a single point of failure, but at least we also know that the complexity of the solution is smaller and easier to reason and maintain.
 
 To ensure a better reliability we can also apply the [Binary Star Pattern]() to have a configuration with a backup server.
+
+## Event Publisher
+
+The event publisher allows you to publish events into the event bus. You can use a programatic interface or the command line tool.
+
+### Command line tool
+
+Sending a new event every 1s
+
+    $ bin/publisher -t /examples/producer -i 1000 something
+
+Help command is available
+
+    $ bin/publisher --help
+
+    Usage:
+
+    $ bin/publisher -a tcp://127.0.0.1:5558 -p command_line_producer -t /examples/producer -i 1000 random data"
+
+     -a: Event Bus Address
+     -p: Producer identifier
+     -t: Topic used to publish events
+     -i: Publish interval (in ms)
