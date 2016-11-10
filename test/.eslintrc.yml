@@ -1,0 +1,9 @@
+env:
+  node: true
+  mocha: true
+rules:
+  "node/no-unpublished-require": [2, {
+    allowModules: ["chai"]
+  }]
+globals:
+  should: true

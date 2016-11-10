@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "NODE_ENV=test istanbul cover node_modules/mocha/bin/_mocha",
-    "test-debug": "NODE_ENV=test mocha --watch"
+    "test-debug": "NODE_ENV=test mocha --watch",
+    "lint": "eslint ."
   },
   "repository": {
     "type": "git",
@@ -25,7 +26,12 @@
   "homepage": "https://github.com/micro-toolkit/event-bus-zeromq#readme",
   "devDependencies": {
     "chai": "^3.5.0",
+    "eslint": "^3.9.1",
+    "eslint-plugin-node": "^3.0.3",
     "istanbul": "^0.4.5",
     "mocha": "^3.1.2"
+  },
+  "engines": {
+    "node": ">=4"
   }
 }
