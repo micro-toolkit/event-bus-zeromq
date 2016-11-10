@@ -1,0 +1,25 @@
+{
+  "name": "micro-toolkit-event-bus-zeromq",
+  "version": "1.0.0",
+  "description": "The ØMQ implementation of event BUS based on ØMQ Clone Pattern and Clustered Hashmap Protocol.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/micro-toolkit/event-bus-zeromq.git"
+  },
+  "keywords": [
+    "micro-toolkit",
+    "zeromq",
+    "pub-sub",
+    "microservices"
+  ],
+  "author": "Pedro Januário <prnjanuario@gmail.com> (http://shared-mind.tumblr.com/)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/micro-toolkit/event-bus-zeromq/issues"
+  },
+  "homepage": "https://github.com/micro-toolkit/event-bus-zeromq#readme"
+}
