@@ -1,0 +1,37 @@
+{
+  "name": "micro-toolkit-event-bus-zeromq",
+  "version": "1.0.0",
+  "description": "The ØMQ implementation of event BUS based on ØMQ Clone Pattern and Clustered Hashmap Protocol.",
+  "main": "index.js",
+  "scripts": {
+    "test": "NODE_ENV=test istanbul cover node_modules/mocha/bin/_mocha",
+    "test-debug": "NODE_ENV=test mocha --watch",
+    "lint": "eslint ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/micro-toolkit/event-bus-zeromq.git"
+  },
+  "keywords": [
+    "micro-toolkit",
+    "zeromq",
+    "pub-sub",
+    "microservices"
+  ],
+  "author": "Pedro Januário <prnjanuario@gmail.com> (http://shared-mind.tumblr.com/)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/micro-toolkit/event-bus-zeromq/issues"
+  },
+  "homepage": "https://github.com/micro-toolkit/event-bus-zeromq#readme",
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "eslint": "^3.9.1",
+    "eslint-plugin-node": "^3.0.3",
+    "istanbul": "^0.4.5",
+    "mocha": "^3.1.2"
+  },
+  "engines": {
+    "node": ">=4"
+  }
+}

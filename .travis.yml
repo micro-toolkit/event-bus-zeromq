@@ -1,0 +1,27 @@
+sudo: required
+dist: trusty
+cache:
+  apt: true
+language: node_js
+node_js:
+  - 4
+  - 5
+  - 6
+  - 7
+before_script:
+  - npm install -g codeclimate-test-reporter
+  - npm install -d
+branches:
+  only:
+    - master
+script:
+  - npm test
+after_success:
+  - codeclimate-test-reporter < ./coverage/lcov.info
+addons:
+  apt:
+    packages:
+      - libzmq3-dev
+  code_climate:
+    repo_token:
+      secure: O9NUFfhzPtrGpJ3zLSmWf1dAIrVwu2bGcGJrw45BE8KfctRSVnwgLqvtAJI7BMnQcvrI5AKSJwL05UtWjnaOgv0eekpgQ0bhsd8QJk3MbpfIjYTGJh7N3uR3SaZm84m+OHUYIDnOlM+SrsYp8A5no3b9nSM40+01EwRHyE/Yn+6ePg2QvoHjkmtEzkxegSNTUac+p8KIPsYEAWS2CYrhgLZk/PLCkOSHRAKQrsrAYIiESgTphtiN2cStzzU+jmARDjXVDvrw7uOXGAd9MWZa3qeRS7LDOSMum9vcKvg6SVP6i0xwOBB9QemGjD133vkDvLi4z1mixJcWkRiuvfl0KtzNZs7Jv7vuicwDac3AfSxBGm8uixzZVlB6GyhKedbyjVGaJAeQd9fKQBsSApRUPET9kPFgkL/gMN3zLIzhcqM0XmfurxcfcF1+8af4lCSPKVYar8Q8HlcuCpYHk34r7r6dNrQMS4kGv5+GucWtvwO7jwR/sTvJODl39MnMNg78oN6hwU+Q3OdYLW9FyT6G2bgbSylX3OQICpx/Ht5PO8jgOvwpfyNoNBzGKVcNcHxUofoU0COtpscJ/fAVLg5EViJaMJ8kVdl2TF1nMs4CCe6W/THAUfua8Apa0Np5NfN2u/kEYEhFHV5shq7m/zB1528ASu24UX99q7rA+pGC8a4=
