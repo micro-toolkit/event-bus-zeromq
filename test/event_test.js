@@ -115,7 +115,7 @@ describe('Event Module', function () {
       actual[2].should.be.eq(evt.producer)
     })
 
-    it('should return timestamp on frame 3', function () {
+    it('should return timestamp on frame 3 as iso-8601', function () {
       var actual = evt.toFrames()
       actual[3].should.be.eq('2016-11-10T16:00:00.000Z')
     })
