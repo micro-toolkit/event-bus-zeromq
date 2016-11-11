@@ -22,9 +22,25 @@ This implementation will be using a centralized event bus, why? Well, fully dist
 
 To ensure a better reliability we can also apply the [Binary Star Pattern]() to have a configuration with a backup server.
 
+## Install
+
+    $ npm i micro-toolkit-event-bus-zeromq --save
+
 ## Event Publisher
 
 The event publisher allows you to publish events into the event bus. You can use a programatic interface or the command line tool.
+
+### Library
+
+    var config = {
+      // optional, this is the default address
+      address: 'tcp://127.0.0.1:5558',
+      producerId: 'someproducer'
+    }
+    var bus = require('micro-toolkit-event-bus-zeromq')
+    var publisher = bus.getPublisher(config)
+
+    publisher.send('/example/topic', "somedata")
 
 ### Command line tool
 
