@@ -85,8 +85,8 @@ The SYNCEND command takes this form:
 SYNCEND command
 -----------------------------------
 Frame 0: "SYNCEND"
-Frame 1: sequence number, 8 bytes in network order
-Frame 2: subtree/s specification
+Frame 1: subtree/s specification
+Frame 2: sequence number, 8 bytes in network order
 ```
 
 The sequence number MUST be the highest sequence number of the SYNC commands previously sent.
