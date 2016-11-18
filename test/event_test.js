@@ -17,7 +17,116 @@ describe('Event Module', function () {
       clock.restore()
     })
 
-    it('should return a event instance', function () {
+    describe('from collection of parameters', function () {
+      it('should return a event instance', function () {
+        var actual = target()
+        actual.should.have.property('topic')
+        actual.should.have.property('sequence')
+        actual.should.have.property('uuid')
+        actual.should.have.property('producer')
+        actual.should.have.property('timestamp')
+        actual.should.have.property('data')
+      })
+
+      it('should return a event with producer', function () {
+        var actual = target('publisher')
+        actual.should.have.property('producer', 'publisher')
+      })
+
+      it('should return a event with topic', function () {
+        var actual = target('publisher', '/example/topic')
+        actual.should.have.property('topic', '/example/topic')
+      })
+
+      it('should return a event with data', function () {
+        var actual = target('publisher', '/example/topic', 'something')
+        actual.should.have.property('data', 'something')
+      })
+
+      it('should return a event with sequence', function () {
+        var actual = target('publisher', '/example/topic', 'something', 99)
+        actual.should.have.property('sequence', 99)
+      })
+
+      it('should return a event with uuid', function () {
+        var actual = target('publisher', '/example/topic', 'something', 0, 'uuid')
+        actual.should.have.property('uuid', 'uuid')
+      })
+
+      it('should return a event with generated uuid when not present', function () {
+        var expected = '453da075-ea7b-4e67-9f05-59bb830d8386'
+        sinon.stub(uuidGen, "v4").returns(expected)
+        var actual = target('publisher', '/example/topic', 'something', 0, null)
+        actual.should.have.property('uuid', expected)
+      })
+
+      it('should return a event with timestamp', function () {
+        var expected = new Date('2016-11-10 16:00:00')
+        var actual = target('publisher', '/example/topic', 'something', 0, null,
+          expected)
+        actual.should.have.property('timestamp', expected)
+      })
+
+      it('should return a event with current timestamp when not present', function () {
+        var expected = new Date('2016-11-10 16:00:00')
+        var actual = target('publisher', '/example/topic', 'something')
+        actual.should.have.property('timestamp')
+        actual.timestamp.should.be.eql(expected)
+      })
+    })
+
+    describe('from the frames', function () {
+      var frames
+
+      beforeEach(function () {
+        frames = [ '/example/topic', 99, 'publisher',
+          '2016-11-10T16:00:00.000Z', 'uuid', 'something' ]
+      })
+
+      it('should return a event instance', function () {
+        var actual = target(frames)
+        actual.should.have.property('topic')
+        actual.should.have.property('sequence')
+        actual.should.have.property('uuid')
+        actual.should.have.property('producer')
+        actual.should.have.property('timestamp')
+        actual.should.have.property('data')
+      })
+
+      it('should return a event with producer', function () {
+        var actual = target(frames)
+        actual.should.have.property('producer', 'publisher')
+      })
+
+      it('should return a event with topic', function () {
+        var actual = target(frames)
+        actual.should.have.property('topic', '/example/topic')
+      })
+
+      it('should return a event with data', function () {
+        var actual = target(frames)
+        actual.should.have.property('data', 'something')
+      })
+
+      it('should return a event with sequence', function () {
+        var actual = target(frames)
+        actual.should.have.property('sequence', 99)
+      })
+
+      it('should return a event with uuid', function () {
+        var actual = target(frames)
+        actual.should.have.property('uuid', 'uuid')
+      })
+
+      it('should return a event with timestamp', function () {
+        var expected = new Date('2016-11-10T16:00:00.000Z')
+        var actual = target(frames)
+        actual.should.have.property('timestamp')
+        actual.timestamp.should.be.eql(expected)
+      })
+    })
+
+    it('should return a event instance from frames', function () {
       var actual = target()
       actual.should.have.property('topic')
       actual.should.have.property('sequence')
@@ -25,52 +134,6 @@ describe('Event Module', function () {
       actual.should.have.property('producer')
       actual.should.have.property('timestamp')
       actual.should.have.property('data')
-    })
-
-    it('should return a event with producer', function () {
-      var actual = target('publisher')
-      actual.should.have.property('producer', 'publisher')
-    })
-
-    it('should return a event with topic', function () {
-      var actual = target('publisher', '/example/topic')
-      actual.should.have.property('topic', '/example/topic')
-    })
-
-    it('should return a event with data', function () {
-      var actual = target('publisher', '/example/topic', 'something')
-      actual.should.have.property('data', 'something')
-    })
-
-    it('should return a event with sequence', function () {
-      var actual = target('publisher', '/example/topic', 'something', 99)
-      actual.should.have.property('sequence', 99)
-    })
-
-    it('should return a event with uuid', function () {
-      var actual = target('publisher', '/example/topic', 'something', 0, 'uuid')
-      actual.should.have.property('uuid', 'uuid')
-    })
-
-    it('should return a event with generated uuid when not present', function () {
-      var expected = '453da075-ea7b-4e67-9f05-59bb830d8386'
-      sinon.stub(uuidGen, "v4").returns(expected)
-      var actual = target('publisher', '/example/topic', 'something', 0, null)
-      actual.should.have.property('uuid', expected)
-    })
-
-    it('should return a event with timestamp', function () {
-      var expected = new Date('2016-11-10 16:00:00')
-      var actual = target('publisher', '/example/topic', 'something', 0, null,
-        expected)
-      actual.should.have.property('timestamp', expected)
-    })
-
-    it('should return a event with current timestamp when not present', function () {
-      var expected = new Date('2016-11-10 16:00:00')
-      var actual = target('publisher', '/example/topic', 'something')
-      actual.should.have.property('timestamp')
-      actual.timestamp.should.be.eql(expected)
     })
   })
 
