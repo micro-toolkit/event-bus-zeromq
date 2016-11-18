@@ -9,4 +9,4 @@ var publisher = bus.getPublisher(config)
 
 publisher.send('/example/topic', "somedata")
 
-console.log('Event was sent!')
+console.log('Event was sent!') // eslint-disable-line no-console
