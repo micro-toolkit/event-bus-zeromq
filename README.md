@@ -88,3 +88,21 @@ The event subscriber allows you to subscribe events from the event bus. You can 
 
     // start receiving events
     subscriber.connect()
+
+### Command line tool
+
+Receive events from topic '/examples'
+
+    $ bin/subscriber -t /examples
+
+Help command is available
+
+    $ bin/subscriber --help
+
+    Usage:
+
+    $ bin/publisher -a tcp://127.0.0.1:5557 -p undefined -t undefined -i undefined undefined"
+
+    -s: Event Bus Snapshot Address
+    -a: Event Bus Address
+    -t: Topics to subscribe events (eg: /a/b,/ac)
