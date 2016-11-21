@@ -1,12 +1,7 @@
 var zmq = require('zmq')
 var Logger = require('../logger')
 var fs = require('fs')
-
-function toFrames(frames) {
-  return _.map(frames, function(frame){
-    return Buffer.from(String(frame), 'utf8')
-  })
-}
+var toFrames = require('./support/frames_helper').toFrames
 
 describe('Subscriber Module', function () {
   var subStub, dealerStub, log, subscriber
