@@ -3,6 +3,7 @@ var Logger = require('../logger')
 var fs = require('fs')
 var toFrames = require('./support/frames_helper').toFrames
 var logHelper = require('./support/log_helper')
+var zmqHelper = require('./support/zmq_helper')
 
 describe('Subscriber Module', function () {
   var subStub, dealerStub, log, subscriber
@@ -21,20 +22,8 @@ describe('Subscriber Module', function () {
   })
 
   beforeEach(function () {
-    dealerStub = {
-      connect: sinon.spy(),
-      on: sinon.spy(),
-      send: sinon.spy() ,
-      close: sinon.spy()
-    }
-    subStub = {
-      connect: sinon.spy(),
-      subscribe: sinon.spy(),
-      on: sinon.spy(),
-      unref: sinon.spy(),
-      ref: sinon.spy(),
-      close: sinon.spy()
-    }
+    dealerStub = zmqHelper.getSocketStub()
+    subStub = zmqHelper.getSocketStub()
     var zmqStub = sinon.stub(zmq, 'socket')
     zmqStub.withArgs('dealer').returns(dealerStub)
     zmqStub.withArgs('sub').returns(subStub)
