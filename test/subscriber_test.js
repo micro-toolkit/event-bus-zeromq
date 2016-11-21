@@ -2,18 +2,14 @@ var zmq = require('zmq')
 var Logger = require('../logger')
 var fs = require('fs')
 var toFrames = require('./support/frames_helper').toFrames
+var logHelper = require('./support/log_helper')
 
 describe('Subscriber Module', function () {
   var subStub, dealerStub, log, subscriber
 
   before(function () {
     // since log is obtain on module loading this to the trick
-    log = {
-      debug: sinon.spy(),
-      info: sinon.spy(),
-      trace: sinon.spy(),
-      warn: sinon.spy()
-    }
+    log = logHelper.getLogStub()
     sinon.stub(Logger, 'getLogger').returns(log)
 
     // we first should stub the logger because is required on module
@@ -52,6 +48,11 @@ describe('Subscriber Module', function () {
   })
 
   describe('#getInstance', function () {
+    // it('should obtain the logger micro.bus.publisher', function() {
+    //   publisher.getInstance(config)
+    //   Logger.getLogger.should.have.been.calledWith('micro.bus.publisher')
+    // })
+
     describe('snapshot stream', function () {
       it('open a dealer 0MQ socket', function () {
         subscriber.getInstance()

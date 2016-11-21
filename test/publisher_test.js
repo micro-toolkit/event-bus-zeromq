@@ -1,13 +1,14 @@
 var uuidGen = require('uuid')
 var zmq = require('zmq')
 var Logger = require('../logger')
+var logHelper = require('./support/log_helper')
 
 describe('Publisher Module', function () {
   var socket, publisher, log, config, clock
 
   before(function () {
     // since log is obtain on module loading this to the trick
-    log = { debug: sinon.spy(), info: sinon.spy() }
+    log = logHelper.getLogStub()
     sinon.stub(Logger, 'getLogger').returns(log)
 
     // we first should stub the logger because is required on module
