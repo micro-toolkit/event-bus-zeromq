@@ -8,3 +8,6 @@ rules:
 globals:
   should: true
   sinon: true
+  _: true
+  match: true
+  testConfig: true

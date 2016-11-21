@@ -60,3 +60,49 @@ Help command is available
      -p: Producer identifier
      -t: Topic used to publish events
      -i: Publish interval (in ms)
+
+## Event Subscriber
+
+The event subscriber allows you to subscribe events from the event bus. You can use a programatic interface or the command line tool.
+
+### Library
+
+    var config = {
+      // optional, it will use address - 1 when not specified
+      snapshot: 'tcp://127.0.0.1:5556',
+      // optional, default value is tcp://127.0.0.1:5557
+      address: 'tcp://127.0.0.1:5557',
+      // optional
+      store: { path: '/tmp/sequence.dump' }
+    }
+    var bus = require('micro-toolkit-event-bus-zeromq')
+    var subscriber = bus.getSubscriber(config)
+
+    // subscriber topics
+    subscriber.on('/example/topic', function(data){
+      console.log('Topic /example/topic received => %j', data)
+    })
+    subscriber.on('/example', function(data){
+      console.log('Topic /example received => %j', data)
+    })
+
+    // start receiving events
+    subscriber.connect()
+
+### Command line tool
+
+Receive events from topic '/examples'
+
+    $ bin/subscriber -t /examples
+
+Help command is available
+
+    $ bin/subscriber --help
+
+    Usage:
+
+    $ bin/publisher -a tcp://127.0.0.1:5557 -p undefined -t undefined -i undefined undefined"
+
+    -s: Event Bus Snapshot Address
+    -a: Event Bus Address
+    -t: Topics to subscribe events (eg: /a/b,/ac)

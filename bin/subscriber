@@ -1,0 +1,40 @@
+#!/usr/bin/env node
+
+var _ = require('lodash')
+
+var help = {
+  's': 'Event Bus Snapshot Address',
+  'a': 'Event Bus Address',
+  't': 'Topics to subscribe events (eg: /a/b,/ac)'
+}
+
+var defaults = {
+  address: 'tcp://127.0.0.1:5557',
+  topics: '/examples'
+}
+
+var argv = require('./setup')('bin/subscriber', help, defaults)
+
+var conf = {
+  snapshot: argv.s || null,
+  address: argv.a,
+  topics: argv.t,
+  store: { path: '/tmp/sequence.dump' }
+}
+
+var params = _.defaults({}, conf, defaults)
+var config = _.pick(params, ['address', 'topics', 'store'])
+var subscriberFactory = require('../lib/subscriber')
+var subscriber = subscriberFactory.getInstance(config)
+config.topics.split(',').forEach(function(topic){
+  subscriber.on(topic, function(data){
+    console.log('Event Received with data: %j', data)
+  })
+})
+subscriber.connect()
+
+function close() {
+  subscriber.close()
+}
+
+process.on('SIGINT', close)
