@@ -6,4 +6,4 @@ function toFrames(frames) {
   })
 }
 
-module.exports = { toFrames: toFrames }
+module.exports = { toFrames: toFrames }
