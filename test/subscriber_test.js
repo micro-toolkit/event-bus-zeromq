@@ -4,6 +4,7 @@ var fs = require('fs')
 var toFrames = require('./support/frames_helper').toFrames
 var logHelper = require('./support/log_helper')
 var zmqHelper = require('./support/zmq_helper')
+var _ = require('lodash')
 
 describe('Subscriber Module', function () {
   var subStub, dealerStub, log, subscriber

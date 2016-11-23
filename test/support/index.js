@@ -1,4 +1,3 @@
-var _ = require('lodash')
 var chai = require('chai')
 var sinon = require('sinon')
 var sinonChai = require("sinon-chai")
@@ -13,5 +12,4 @@ var testConfig = {
 global.should = chai.should()
 global.sinon = sinon
 global.match = sinon.match
-global._ = _
 global.testConfig = testConfig
