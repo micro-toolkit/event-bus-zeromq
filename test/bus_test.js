@@ -2,11 +2,10 @@ var zmqHelper = require('./support/zmq_helper')
 var logHelper = require('./support/log_helper')
 var zmq = require('zmq')
 var Logger = require('../logger')
-var evt = require('../lib/event')
 var toFrames = require('./support/frames_helper').toFrames
 
 describe('BUS Module', function () {
-  var pubStub, collectorStub, log, subscriber, config
+  var pubStub, collectorStub, snapshotStub, log, config, bus
 
   before(function () {
     // since log is obtain on module loading this to the trick
@@ -25,8 +24,12 @@ describe('BUS Module', function () {
     config = {}
     collectorStub = zmqHelper.getSocketStub()
     pubStub = zmqHelper.getSocketStub()
+    snapshotStub = zmqHelper.getSocketStub()
     var zmqStub = sinon.stub(zmq, 'socket')
-    zmqStub.withArgs('router').returns(collectorStub)
+    // since we dont have any other ways to detect different calls we need
+    // to wire it with sequence of the calls :(
+    zmqStub.withArgs('router').onFirstCall().returns(collectorStub)
+    zmqStub.withArgs('router').onSecondCall().returns(snapshotStub)
     zmqStub.withArgs('pub').returns(pubStub)
   })
 
@@ -52,6 +55,8 @@ describe('BUS Module', function () {
       it('open a router 0MQ socket', function () {
         bus.getInstance(config)
         zmq.socket.should.have.been.calledWith('router')
+        // we need to ensure that the test doesnt pass because other stream was open
+        zmq.socket.should.have.been.calledThrice
       })
 
       it('should handle socket messages', function () {
@@ -66,6 +71,20 @@ describe('BUS Module', function () {
         zmq.socket.should.have.been.calledWith('pub')
       })
     })
+
+    describe('snapshot stream', function () {
+      it('open a router 0MQ socket', function () {
+        bus.getInstance(config)
+        zmq.socket.should.have.been.calledWith('router')
+        // we need to ensure that the test doesnt pass because other stream was open
+        zmq.socket.should.have.been.calledThrice
+      })
+
+      it('should handle socket messages', function () {
+        bus.getInstance(config)
+        snapshotStub.on.should.have.been.calledWith('message', match.func)
+      })
+    })
   })
 
   describe('connect', function () {
@@ -73,7 +92,8 @@ describe('BUS Module', function () {
       var target = bus.getInstance(config)
       target.connect()
       log.info.should.have.been.calledWith(
-        'BUS opened the folowing streams\n\tpublisher: %s\n\tcollector: %s',
+        'BUS opened the folowing streams\n\tsnapshot: %s\n\tpublisher: %s\n\tcollector: %s',
+        'tcp://127.0.0.1:5556',
         'tcp://127.0.0.1:5557',
         'tcp://127.0.0.1:5558'
       )
@@ -124,6 +144,84 @@ describe('BUS Module', function () {
         var target = bus.getInstance(config)
         target.connect()
         pubStub.bindSync.should.have.been.calledWith('tcp://127.0.0.1:7777')
+      })
+    })
+
+    describe('snapshot stream', function () {
+      it('should connect socket', function () {
+        var target = bus.getInstance()
+        target.connect()
+        snapshotStub.bindSync.should.have.been.called
+      })
+
+      it('should connect socket to default configuration', function () {
+        var target = bus.getInstance()
+        target.connect()
+        snapshotStub.bindSync.should.have.been.calledWith('tcp://127.0.0.1:5556')
+      })
+
+      it('should connect socket to publisher configuration - 1', function () {
+        var target = bus.getInstance({ publisher: 'tcp://127.0.0.1:7767' })
+        target.connect()
+        snapshotStub.bindSync.should.have.been.calledWith('tcp://127.0.0.1:7766')
+      })
+
+      it('should connect socket to snapshot configuration', function () {
+        var config = { snapshot: 'tcp://127.0.0.1:7777' }
+        var target = bus.getInstance(config)
+        target.connect()
+        snapshotStub.bindSync.should.have.been.calledWith('tcp://127.0.0.1:7777')
+      })
+
+      describe('handle SYNCSTART command', function () {
+        var handler, frames
+
+        beforeEach(function () {
+          snapshotStub.on = function(evt, fn){ handler = fn }
+          frames = toFrames(['identity', 'SYNCSTART', '/test', 1])
+          var target = bus.getInstance(config)
+          target.connect()
+        })
+
+        it('should log sync start information', function () {
+          log.info.reset()
+          handler.apply(null, frames)
+          log.info.should.have.been.calledWith(
+            'Sending snapshot=%d for subtrees=%s', 1, '/test'
+          )
+        })
+
+        it('should log warning information when receiving a invalid snapshot message', function () {
+          frames = toFrames(['identity', 'SYNCSTART'])
+          handler.apply(null, frames)
+          log.warn.should.have.been.calledWith(
+            'Received a message format on snapshot socket!'
+          )
+        })
+
+        it('should log warning information when receiving a unkown command', function () {
+          frames = toFrames(['identity', 'SOMETHING', '/test', 1])
+          handler.apply(null, frames)
+          log.warn.should.have.been.calledWith(
+            'Received a invalid command: \'%s\' on snapshot socket!',
+            'SOMETHING'
+          )
+        })
+
+        it('should return a SYNCEND command with client identity', function () {
+          handler.apply(null, frames)
+          snapshotStub.send.should.have.been.calledWith(
+            match.has('0', 'identity')
+          )
+        })
+
+        it('should return a SYNCEND command when there are no events stored', function () {
+          handler.apply(null, frames)
+          snapshotStub.send.should.have.been.calledWith(
+            match.has('1', 'SYNCEND')
+          )
+        })
+
       })
     })
 
