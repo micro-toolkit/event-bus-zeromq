@@ -22,7 +22,7 @@ function setup(command, help, defaults) {
     process.exit()
   }
 
-  var level = argv.debug ? 'trace' : 'info'
+  var level = argv.debug ? 'debug' : 'info'
   var plugin = new LoggerConsolePlugin({ level: level })
   Logger.use(plugin)
 
