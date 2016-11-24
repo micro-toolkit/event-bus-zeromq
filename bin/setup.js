@@ -1,8 +1,6 @@
 var _ = require('lodash')
 var Logger = require('logger-facade-nodejs')
 var LoggerConsolePlugin = require('logger-facade-console-plugin-nodejs')
-var plugin = new LoggerConsolePlugin()
-Logger.use(plugin)
 
 
 function setup(command, help, defaults) {
@@ -23,6 +21,10 @@ function setup(command, help, defaults) {
     // eslint-disable-next-line no-process-exit
     process.exit()
   }
+
+  var level = argv.debug ? 'trace' : 'info'
+  var plugin = new LoggerConsolePlugin({ level: level })
+  Logger.use(plugin)
 
   return argv
 }
