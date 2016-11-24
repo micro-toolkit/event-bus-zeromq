@@ -1,0 +1,42 @@
+#!/usr/bin/env node
+
+var _ = require('lodash')
+
+var help = {
+  's': 'Event Bus Snapshot Address',
+  'p': 'Event Bus Publisher Address',
+  'c': 'Event Bus Collector Address'
+}
+
+var defaults = {
+  snapshot: 'tcp://127.0.0.1:5556',
+  publisher: 'tcp://127.0.0.1:5557',
+  collector: 'tcp://127.0.0.1:5558'
+}
+
+var helpDefaults = {
+  s: defaults.snapshot,
+  p: defaults.publisher,
+  c: defaults.collector
+}
+
+var argv = require('./setup')('bin/bus', help, helpDefaults)
+
+var conf = {
+  snapshot: argv.s || null,
+  publisher: argv.p,
+  collector: argv.c
+}
+
+var params = _.defaults({}, conf, defaults)
+var config = _.pick(params, ['snapshot', 'publisher', 'collector'])
+var busFactory = require('../lib/bus')
+var bus = busFactory.getInstance(config)
+bus.connect()
+
+function close() {
+  bus.close()
+  process.exit()
+}
+
+process.on('SIGINT', close)

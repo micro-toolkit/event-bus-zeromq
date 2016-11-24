@@ -106,3 +106,52 @@ Help command is available
     -s: Event Bus Snapshot Address
     -a: Event Bus Address
     -t: Topics to subscribe events (eg: /a/b,/ac)
+## Event BUS
+
+The event subscriber allows you to subscribe events from the event bus. You can use a programatic interface or the command line tool.
+
+### Library
+
+    var config = {
+      // optional, it will use publisher - 1 when not specified
+      snapshot: 'tcp://127.0.0.1:5556',
+      // optional, default value is tcp://127.0.0.1:5557
+      publisher: 'tcp://127.0.0.1:5557',
+      // optional, it will use publisher + 1 when not specified
+      collector: 'tcp://127.0.0.1:5558'
+    }
+    var busFactory = require('micro-toolkit-event-bus-zeromq')
+    var bus = busFactory.getInstance(config)
+    bus.connect()
+
+    function close() {
+      bus.close()
+      process.exit()
+    }
+
+    process.on('SIGINT', close)
+
+### Command line
+
+Start BUS
+
+    $ bin/bus
+
+Help command is available
+
+    $ bin/bus --help
+
+    Usage:
+
+    With default values
+    $ bin/bus
+
+    With debug level
+    $ bin/bus --debug
+
+    With parameters
+    $ bin/bus -s tcp://127.0.0.1:5556 -p tcp://127.0.0.1:5557 -c tcp://127.0.0.1:5558
+
+     -s: Event Bus Snapshot Address
+     -p: Event Bus Publisher Address
+     -c: Event Bus Collector Address
