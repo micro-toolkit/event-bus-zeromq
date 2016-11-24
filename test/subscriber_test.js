@@ -1,3 +1,4 @@
+var uuidGen = require('uuid')
 var zmq = require('zmq')
 var Logger = require('../logger')
 var fs = require('fs')
@@ -35,6 +36,7 @@ describe('Subscriber Module', function () {
 
   afterEach(function () {
     zmq.socket.restore()
+    if (uuidGen.v4.restore) { uuidGen.v4.restore() }
   })
 
   describe('#getInstance', function () {
@@ -47,6 +49,12 @@ describe('Subscriber Module', function () {
       it('open a dealer 0MQ socket', function () {
         subscriber.getInstance()
         zmq.socket.should.have.been.calledWith('dealer')
+      })
+
+      it('set 0MQ socket identity with unique generated value', function () {
+        sinon.stub(uuidGen, "v4").returns('uuid')
+        subscriber.getInstance()
+        dealerStub.identity.should.be.eq('uuid')
       })
 
       it('should handle socket messages', function () {
