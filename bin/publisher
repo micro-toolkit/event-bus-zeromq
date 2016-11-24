@@ -14,10 +14,18 @@ var defaults = {
   producerId: 'command_line_producer',
   topic: '/examples/producer',
   interval: 1000,
-  data: ["random data"]
+  data: ["random-data"]
 }
 
-var argv = require('./setup')('bin/publisher', help, defaults)
+var helpDefaults = {
+  a: defaults.address,
+  p: defaults.producerId,
+  t: defaults.topic,
+  i: defaults.interval,
+  data: defaults.data
+}
+
+var argv = require('./setup')('bin/publisher', help, helpDefaults)
 
 var conf = {
   address: argv.a,

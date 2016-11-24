@@ -13,7 +13,13 @@ var defaults = {
   topics: '/examples'
 }
 
-var argv = require('./setup')('bin/subscriber', help, defaults)
+var helpDefaults = {
+  s: 'tcp://127.0.0.1:5556',
+  a: 'tcp://127.0.0.1:5557',
+  t: '/examples'
+}
+
+var argv = require('./setup')('bin/subscriber', help, helpDefaults)
 
 var conf = {
   snapshot: argv.s || null,
