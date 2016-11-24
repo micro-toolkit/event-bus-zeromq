@@ -341,7 +341,7 @@ describe('BUS Module', function () {
               handler.apply(null, frames)
               log.info.should.have.been.calledWith(
                 'Sent snapshot=%d for subtrees=%s',
-                0, '/test/1/topic'
+                1, '/test/1/topic'
               )
             })
 
