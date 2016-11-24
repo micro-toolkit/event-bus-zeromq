@@ -101,11 +101,19 @@ Help command is available
 
     Usage:
 
-    $ bin/publisher -a tcp://127.0.0.1:5557 -p undefined -t undefined -i undefined undefined"
+    With default values
+    $ bin/subscriber
 
-    -s: Event Bus Snapshot Address
-    -a: Event Bus Address
-    -t: Topics to subscribe events (eg: /a/b,/ac)
+    With debug level
+    $ bin/subscriber --debug
+
+    With parameters
+    $ bin/subscriber -s tcp://127.0.0.1:5556 -a tcp://127.0.0.1:5557 -t /examples
+
+     -s: Event Bus Snapshot Address
+     -a: Event Bus Address
+     -t: Topics to subscribe events (eg: /a/b,/ac)
+
 ## Event BUS
 
 The event subscriber allows you to subscribe events from the event bus. You can use a programatic interface or the command line tool.
