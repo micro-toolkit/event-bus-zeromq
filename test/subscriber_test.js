@@ -164,8 +164,8 @@ describe('Subscriber Module', function () {
         target.connect()
         log.info.should.have.been.calledWith(
           match.any,
-          'Started subscriber syncronization for topics %s with sequence %s',
-          '/test/1/topic', 0
+          'Started subscriber sync for snapshot=%s of topics %s',
+          0, '/test/1/topic'
         )
       })
 
