@@ -1,13 +1,15 @@
 var uuidGen = require('uuid')
 var zmq = require('zmq')
 var Logger = require('../logger')
+var logHelper = require('./support/log_helper')
+var zmqHelper = require('./support/zmq_helper')
 
 describe('Publisher Module', function () {
   var socket, publisher, log, config, clock
 
   before(function () {
     // since log is obtain on module loading this to the trick
-    log = { debug: sinon.spy(), info: sinon.spy() }
+    log = logHelper.getLogStub()
     sinon.stub(Logger, 'getLogger').returns(log)
 
     // we first should stub the logger because is required on module
@@ -20,7 +22,7 @@ describe('Publisher Module', function () {
 
   beforeEach(function () {
     config = { producerId: 'producer' }
-    socket = { connect: sinon.spy(), send: sinon.spy() }
+    socket = zmqHelper.getSocketStub()
     sinon.stub(zmq, 'socket').returns(socket)
     var ts = new Date('2016-11-10 16:00:00').getTime()
     clock = sinon.useFakeTimers(ts)

@@ -1,24 +1,18 @@
+var uuidGen = require('uuid')
 var zmq = require('zmq')
 var Logger = require('../logger')
 var fs = require('fs')
-
-function toFrames(frames) {
-  return _.map(frames, function(frame){
-    return Buffer.from(String(frame), 'utf8')
-  })
-}
+var toFrames = require('./support/frames_helper').toFrames
+var logHelper = require('./support/log_helper')
+var zmqHelper = require('./support/zmq_helper')
+var _ = require('lodash')
 
 describe('Subscriber Module', function () {
   var subStub, dealerStub, log, subscriber
 
   before(function () {
     // since log is obtain on module loading this to the trick
-    log = {
-      debug: sinon.spy(),
-      info: sinon.spy(),
-      trace: sinon.spy(),
-      warn: sinon.spy()
-    }
+    log = logHelper.getLogStub()
     sinon.stub(Logger, 'getLogger').returns(log)
 
     // we first should stub the logger because is required on module
@@ -30,20 +24,8 @@ describe('Subscriber Module', function () {
   })
 
   beforeEach(function () {
-    dealerStub = {
-      connect: sinon.spy(),
-      on: sinon.spy(),
-      send: sinon.spy() ,
-      close: sinon.spy()
-    }
-    subStub = {
-      connect: sinon.spy(),
-      subscribe: sinon.spy(),
-      on: sinon.spy(),
-      unref: sinon.spy(),
-      ref: sinon.spy(),
-      close: sinon.spy()
-    }
+    dealerStub = zmqHelper.getSocketStub()
+    subStub = zmqHelper.getSocketStub()
     var zmqStub = sinon.stub(zmq, 'socket')
     zmqStub.withArgs('dealer').returns(dealerStub)
     zmqStub.withArgs('sub').returns(subStub)
@@ -54,13 +36,25 @@ describe('Subscriber Module', function () {
 
   afterEach(function () {
     zmq.socket.restore()
+    if (uuidGen.v4.restore) { uuidGen.v4.restore() }
   })
 
   describe('#getInstance', function () {
+    // it('should obtain the logger micro.bus.publisher', function() {
+    //   publisher.getInstance(config)
+    //   Logger.getLogger.should.have.been.calledWith('micro.bus.publisher')
+    // })
+
     describe('snapshot stream', function () {
       it('open a dealer 0MQ socket', function () {
         subscriber.getInstance()
         zmq.socket.should.have.been.calledWith('dealer')
+      })
+
+      it('set 0MQ socket identity with unique generated value', function () {
+        sinon.stub(uuidGen, "v4").returns('uuid')
+        subscriber.getInstance()
+        dealerStub.identity.should.be.eq('uuid')
       })
 
       it('should handle socket messages', function () {
@@ -178,8 +172,8 @@ describe('Subscriber Module', function () {
         target.connect()
         log.info.should.have.been.calledWith(
           match.any,
-          'Started subscriber syncronization for topics %s with sequence %s',
-          '/test/1/topic', 0
+          'Started subscriber sync for snapshot=%s of topics %s',
+          0, '/test/1/topic'
         )
       })
 

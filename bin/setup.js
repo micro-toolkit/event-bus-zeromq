@@ -1,8 +1,7 @@
+var util = require('util')
 var _ = require('lodash')
 var Logger = require('logger-facade-nodejs')
 var LoggerConsolePlugin = require('logger-facade-console-plugin-nodejs')
-var plugin = new LoggerConsolePlugin()
-Logger.use(plugin)
 
 
 function setup(command, help, defaults) {
@@ -11,9 +10,18 @@ function setup(command, help, defaults) {
   if (argv.help) {
     /* eslint-disable no-console */
     console.log('\nUsage:')
-    console.log('\n$ bin/publisher -a %s -p %s -t %s -i %s %s"\n',
-      defaults.address, defaults.producerId, defaults.topic,
-      defaults.interval, defaults.data)
+    console.log('\nWith default values')
+    console.log(' $ ' + command + " " + (defaults.data || []).join(' '))
+
+    console.log('\nWith debug level')
+    console.log(' $ ' + command  + " " + (defaults.data || []).join(' ') + ' --debug')
+
+    console.log('\nWith parameters')
+    var example = ' $ ' + command
+    _.forOwn(help, function(desc, key) {
+      example += util.format(' -%s %s', key, defaults[key])
+    })
+    console.log(example + " " + (defaults.data || []).join(' ') + '\n')
 
     _.forOwn(help, function(desc, key) {
       console.log('  -%s: %s', key, desc)
@@ -23,6 +31,10 @@ function setup(command, help, defaults) {
     // eslint-disable-next-line no-process-exit
     process.exit()
   }
+
+  var level = argv.debug ? 'debug' : 'info'
+  var plugin = new LoggerConsolePlugin({ level: level })
+  Logger.use(plugin)
 
   return argv
 }

@@ -13,7 +13,13 @@ var defaults = {
   topics: '/examples'
 }
 
-var argv = require('./setup')('bin/subscriber', help, defaults)
+var helpDefaults = {
+  s: 'tcp://127.0.0.1:5556',
+  a: 'tcp://127.0.0.1:5557',
+  t: '/examples'
+}
+
+var argv = require('./setup')('bin/subscriber', help, helpDefaults)
 
 var conf = {
   snapshot: argv.s || null,
@@ -22,13 +28,16 @@ var conf = {
   store: { path: '/tmp/sequence.dump' }
 }
 
+var Logger = require('logger-facade-nodejs')
+var log = Logger.getLogger('subscriber')
+
 var params = _.defaults({}, conf, defaults)
 var config = _.pick(params, ['address', 'topics', 'store'])
 var subscriberFactory = require('../lib/subscriber')
 var subscriber = subscriberFactory.getInstance(config)
 config.topics.split(',').forEach(function(topic){
   subscriber.on(topic, function(data){
-    console.log('Event Received with data: %j', data)
+    log.info('Event Received with data: %j', data)
   })
 })
 subscriber.connect()
