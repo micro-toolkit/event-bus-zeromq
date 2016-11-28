@@ -4,6 +4,7 @@ var zmq = require('zmq')
 var Logger = require('../logger')
 var toFrames = require('./support/frames_helper').toFrames
 var fs = require('fs')
+var eventInstanceMemoryFactory = require('./support/memory_event_store')
 
 describe('BUS Module', function () {
   var pubStub, collectorStub, snapshotStub, log, config, bus
@@ -23,7 +24,8 @@ describe('BUS Module', function () {
 
   beforeEach(function () {
     var sequenceDumpPath = '/tmp/bus_sequence_test.dump'
-    config = { store: { path: sequenceDumpPath } }
+    var eventInstanceMemory = eventInstanceMemoryFactory.getInstance()
+    config = { store: { path: sequenceDumpPath, eventInstance: eventInstanceMemory } }
     collectorStub = zmqHelper.getSocketStub()
     pubStub = zmqHelper.getSocketStub()
     snapshotStub = zmqHelper.getSocketStub()
@@ -220,31 +222,39 @@ describe('BUS Module', function () {
 
         describe('when no previous events were received', function () {
           it('should return a SYNCEND command', function () {
-            handler.apply(null, frames)
-            snapshotStub.send.should.have.been.calledWith(
-              match.has('1', 'SYNCEND')
-            )
+            return handler.apply(null, frames)
+              .then(function(){
+                snapshotStub.send.should.have.been.calledWith(
+                  match.has('1', 'SYNCEND')
+                )
+              })
           })
 
           it('should return a SYNCEND command with client identity', function () {
-            handler.apply(null, frames)
-            snapshotStub.send.should.have.been.calledWith(
-              match.has('0', 'identity')
-            )
+            return handler.apply(null, frames)
+              .then(function(){
+                snapshotStub.send.should.have.been.calledWith(
+                  match.has('0', 'identity')
+                )
+              })
           })
 
           it('should return a SYNCEND with topic', function () {
-            handler.apply(null, frames)
-            snapshotStub.send.should.have.been.calledWith(
-              match.has('2', '/test/1/topic')
-            )
+            return handler.apply(null, frames)
+              .then(function(){
+                snapshotStub.send.should.have.been.calledWith(
+                  match.has('2', '/test/1/topic')
+                )
+              })
           })
 
           it('should return a SYNCEND with sequence state', function () {
-            handler.apply(null, frames)
-            snapshotStub.send.should.have.been.calledWith(
-              match.has('3', 0)
-            )
+            return handler.apply(null, frames)
+              .then(function(){
+                snapshotStub.send.should.have.been.calledWith(
+                  match.has('3', 0)
+                )
+              })
           })
         })
 
@@ -255,21 +265,25 @@ describe('BUS Module', function () {
               '/test/1/topic', 0, 'producer',
               '2016-11-18T14:36:49.007Z', 'uuid', 'event-data'
             ])
-            handlerCollector.apply(null, newEventFrames)
+            return handlerCollector.apply(null, newEventFrames)
           })
 
           it('should return a SYNC command with client 0MQ identity', function () {
-            handler.apply(null, frames)
-            snapshotStub.send.should.have.been.calledWith(
-              match.has('0', 'identity')
-            )
+            return handler.apply(null, frames)
+              .then(function(){
+                snapshotStub.send.should.have.been.calledWith(
+                  match.has('0', 'identity')
+                )
+              })
           })
 
           it('should return a SYNC command', function () {
-            handler.apply(null, frames)
-            snapshotStub.send.should.have.been.calledWith(
-              match.has('1', 'SYNC')
-            )
+            return handler.apply(null, frames)
+              .then(function(){
+                snapshotStub.send.should.have.been.calledWith(
+                  match.has('1', 'SYNC')
+                )
+              })
           })
 
           it('should return a SYNC command per each event', function () {
@@ -278,13 +292,18 @@ describe('BUS Module', function () {
               '/test/1/topic', 1, 'producer',
               '2016-11-18T14:36:49.007Z', 'uuid', 'event-data'
             ])
-            handlerCollector.apply(null, otherEventFrames)
-            handler.apply(null, frames)
-            snapshotStub.send.should.have.been.calledWith(
-              match.has('1', 'SYNC')
-            )
-            // SYNC END is also sent
-            snapshotStub.send.should.have.been.calledThrice
+
+            return handlerCollector.apply(null, otherEventFrames)
+              .then(function () {
+                return handler.apply(null, frames)
+              })
+              .then(function(){
+                snapshotStub.send.should.have.been.calledWith(
+                  match.has('1', 'SYNC')
+                )
+                // SYNC END is also sent
+                snapshotStub.send.should.have.been.calledThrice
+              })
           })
 
           it('should return a SYNC command per each event filtered by topic', function () {
@@ -293,23 +312,28 @@ describe('BUS Module', function () {
               '/test-other', 0, 'producer',
               '2016-11-18T14:36:49.007Z', 'uuid', 'event-data'
             ])
-            handlerCollector.apply(null, otherTopicEventFrames)
-            handler.apply(null, frames)
-            snapshotStub.send.should.have.been.calledWith(
-              match.has('1', 'SYNC')
-            )
-            // SYNC END is also sent
-            snapshotStub.send.should.have.been.calledTwice
+            return handlerCollector.apply(null, otherTopicEventFrames)
+              .then(function(){
+                return handler.apply(null, frames)
+              })
+              .then(function () {
+                snapshotStub.send.should.have.been.calledWith(
+                  match.has('1', 'SYNC')
+                )
+                // SYNC END is also sent
+                snapshotStub.send.should.have.been.calledTwice
+              })
           })
 
           it('should return a SYNC command per each event filtered by partial topic', function () {
             frames = toFrames(['identity', 'SYNCSTART', '/test/1', 0])
-            handler.apply(null, frames)
-            snapshotStub.send.should.have.been.calledWith(
-              match.has('1', 'SYNC')
-            )
-            // SYNC END is also sent
-            snapshotStub.send.should.have.been.calledTwice
+            return handler.apply(null, frames).then(function () {
+              snapshotStub.send.should.have.been.calledWith(
+                match.has('1', 'SYNC')
+              )
+              // SYNC END is also sent
+              snapshotStub.send.should.have.been.calledTwice
+            })
           })
 
           it('should return a SYNC command per each event filtered by topics', function () {
@@ -318,14 +342,19 @@ describe('BUS Module', function () {
               '/test-other', 0, 'producer',
               '2016-11-18T14:36:49.007Z', 'uuid', 'event-data'
             ])
-            handlerCollector.apply(null, otherTopicEventFrames)
             frames = toFrames(['identity', 'SYNCSTART', '/test/1/topic,/test-other', 0])
-            handler.apply(null, frames)
-            snapshotStub.send.should.have.been.calledWith(
-              match.has('1', 'SYNC')
-            )
-            // SYNC END is also sent
-            snapshotStub.send.should.have.been.calledThrice
+
+            return handlerCollector.apply(null, otherTopicEventFrames)
+              .then(function () {
+                return handler.apply(null, frames)
+              })
+              .then(function () {
+                snapshotStub.send.should.have.been.calledWith(
+                  match.has('1', 'SYNC')
+                )
+                // SYNC END is also sent
+                snapshotStub.send.should.have.been.calledThrice
+              })
           })
 
           it('should return a SYNC command filtered by sequence', function () {
@@ -334,52 +363,66 @@ describe('BUS Module', function () {
               '/test/1/topic', 0, 'producer',
               '2016-11-18T14:36:49.007Z', 'uuid', 'event-data'
             ])
-            handlerCollector.apply(null, otherEventFrames)
             frames = toFrames(['identity', 'SYNCSTART', '/test/1/topic', 1])
-            handler.apply(null, frames)
-            snapshotStub.send.should.have.been.calledWith(
-              match.has('1', 'SYNC')
-            )
-            // SYNC END is also sent
-            snapshotStub.send.should.have.been.calledTwice
+            return handlerCollector.apply(null, otherEventFrames)
+              .then(function () {
+                return handler.apply(null, frames)
+              })
+              .then(function () {
+                snapshotStub.send.should.have.been.calledWith(
+                  match.has('1', 'SYNC')
+                )
+                // SYNC END is also sent
+                snapshotStub.send.should.have.been.calledTwice
+              })
           })
 
           describe('when sync finishes', function () {
             it('should log that sync finished', function () {
               log.info.reset()
-              handler.apply(null, frames)
-              log.info.should.have.been.calledWith(
-                'Sent snapshot=%d for subtrees=%s',
-                1, '/test/1/topic'
-              )
+              return handler.apply(null, frames)
+                .then(function () {
+                  log.info.should.have.been.calledWith(
+                    'Sent snapshot=%d for subtrees=%s',
+                    1, '/test/1/topic'
+                  )
+                })
             })
 
             it('should return a SYNCEND command', function () {
-              handler.apply(null, frames)
-              snapshotStub.send.should.have.been.calledWith(
-                match.has('1', 'SYNCEND')
-              )
+              return handler.apply(null, frames)
+                .then(function () {
+                  snapshotStub.send.should.have.been.calledWith(
+                    match.has('1', 'SYNCEND')
+                  )
+                })
             })
 
             it('should return a SYNCEND command with client identity', function () {
-              handler.apply(null, frames)
-              snapshotStub.send.should.have.been.calledWith(
-                match.has('0', 'identity').and(match.has('1', 'SYNCEND'))
-              )
+              return handler.apply(null, frames)
+                .then(function () {
+                  snapshotStub.send.should.have.been.calledWith(
+                    match.has('0', 'identity').and(match.has('1', 'SYNCEND'))
+                  )
+                })
             })
 
             it('should return a SYNCEND with topic', function () {
-              handler.apply(null, frames)
-              snapshotStub.send.should.have.been.calledWith(
-                match.has('2', '/test/1/topic').and(match.has('1', 'SYNCEND'))
-              )
+              return handler.apply(null, frames)
+                .then(function () {
+                  snapshotStub.send.should.have.been.calledWith(
+                    match.has('2', '/test/1/topic').and(match.has('1', 'SYNCEND'))
+                  )
+                })
             })
 
             it('should return a SYNCEND with sequence state', function () {
-              handler.apply(null, frames)
-              snapshotStub.send.should.have.been.calledWith(
-                match.has('3', 1).and(match.has('1', 'SYNCEND'))
-              )
+              return handler.apply(null, frames)
+                .then(function () {
+                  snapshotStub.send.should.have.been.calledWith(
+                    match.has('3', 1).and(match.has('1', 'SYNCEND'))
+                  )
+                })
             })
           })
         })
