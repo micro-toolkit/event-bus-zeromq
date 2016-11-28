@@ -58,7 +58,7 @@ describe('BUS Module', function () {
     })
 
     it('should log the path used to load the sequence state', function () {
-      var target = bus.getInstance(config)
+      bus.getInstance(config)
       log.info.should.have.been.calledWith('Loading sequence state from %s', config.store.path)
     })
 

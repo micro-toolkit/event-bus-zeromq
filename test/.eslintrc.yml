@@ -3,7 +3,7 @@ env:
   mocha: true
 rules:
   "node/no-unpublished-require": [2, {
-    allowModules: ["chai", "sinon", "sinon-chai"]
+    allowModules: ["chai", "sinon", "sinon-chai", "bluebird"]
   }]
 globals:
   should: true
