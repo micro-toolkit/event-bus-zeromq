@@ -40,7 +40,7 @@
     "lodash": "^4.16.6",
     "logger-facade-console-plugin-nodejs": "^1.0.0",
     "logger-facade-nodejs": "^1.0.1",
-    "micro-toolkit-event-storage-mongo": "git+ssh://git@github.com/micro-toolkit/event-storage-mongo.git",
+    "micro-toolkit-event-storage-mongo": "^1.0.0",
     "minimist": "^1.2.0",
     "uuid": "^2.0.3",
     "zmq": "^2.15.3"
