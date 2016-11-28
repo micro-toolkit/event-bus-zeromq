@@ -21,7 +21,7 @@ describe('BUS Module', function () {
   })
 
   beforeEach(function () {
-    config = {}
+    config = { store: { path: '/tmp/bus_sequence_test.dump' } }
     collectorStub = zmqHelper.getSocketStub()
     pubStub = zmqHelper.getSocketStub()
     snapshotStub = zmqHelper.getSocketStub()
@@ -49,6 +49,11 @@ describe('BUS Module', function () {
     it('should obtain the logger micro.bus', function() {
       bus.getInstance(config)
       Logger.getLogger.should.have.been.calledWith('micro.bus')
+    })
+
+    it('should log the path used to load the sequence state', function () {
+      var target = bus.getInstance(config)
+      log.info.should.have.been.calledWith('Loading sequence state from %s', config.store.path)
     })
 
     describe('collector stream', function () {
@@ -390,6 +395,48 @@ describe('BUS Module', function () {
       handler.apply(null, evtFrames)
 
       pubStub.send.should.have.been.called
+    })
+
+    it('should log state loaded from configuration', function () {
+      config.store.path = testConfig.supportDirPath + '/sequence.dump'
+      var instance = bus.getInstance(config)
+      log.info.reset()
+      
+      instance.connect()
+
+      log.info.should.have.been.calledWith('Loaded state sequence=%s', 99)
+    })
+
+    it('should use sequence state 0 when no state stored', function () {
+      var handler
+      var evtFrames = toFrames([
+        'identity',
+        '/test/1/topic', 1, 'producer',
+        '2016-11-18T14:36:49.007Z', 'uuid', 'event-data'
+      ])
+      config.store.path = testConfig.supportDirPath + '/unkown_sequence.dump'
+      collectorStub.on = function(msg, fn) { handler = fn }
+      var instance = bus.getInstance(config)
+      instance.connect()
+      handler.apply(null, evtFrames)
+
+      pubStub.send.should.have.been.calledWith(match.has('1', 1))
+    })
+
+    it('should use sequence state loaded from configuration', function () {
+      var handler
+      var evtFrames = toFrames([
+        'identity',
+        '/test/1/topic', 1, 'producer',
+        '2016-11-18T14:36:49.007Z', 'uuid', 'event-data'
+      ])
+      config.store.path = testConfig.supportDirPath + '/sequence.dump'
+      collectorStub.on = function(msg, fn) { handler = fn }
+      var instance = bus.getInstance(config)
+      instance.connect()
+      handler.apply(null, evtFrames)
+
+      pubStub.send.should.have.been.calledWith(match.has('1', 100))
     })
 
     it('should increment sequence on each new event', function () {
