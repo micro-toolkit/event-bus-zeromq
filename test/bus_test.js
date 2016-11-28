@@ -3,6 +3,7 @@ var logHelper = require('./support/log_helper')
 var zmq = require('zmq')
 var Logger = require('../logger')
 var toFrames = require('./support/frames_helper').toFrames
+var fs = require('fs')
 
 describe('BUS Module', function () {
   var pubStub, collectorStub, snapshotStub, log, config, bus
@@ -21,7 +22,8 @@ describe('BUS Module', function () {
   })
 
   beforeEach(function () {
-    config = { store: { path: '/tmp/bus_sequence_test.dump' } }
+    var sequenceDumpPath = '/tmp/bus_sequence_test.dump'
+    config = { store: { path: sequenceDumpPath } }
     collectorStub = zmqHelper.getSocketStub()
     pubStub = zmqHelper.getSocketStub()
     snapshotStub = zmqHelper.getSocketStub()
@@ -31,6 +33,8 @@ describe('BUS Module', function () {
     zmqStub.withArgs('router').onFirstCall().returns(collectorStub)
     zmqStub.withArgs('router').onSecondCall().returns(snapshotStub)
     zmqStub.withArgs('pub').returns(pubStub)
+
+    if (fs.existsSync(sequenceDumpPath)) { fs.unlinkSync(sequenceDumpPath) }
   })
 
   afterEach(function () {
@@ -401,7 +405,7 @@ describe('BUS Module', function () {
       config.store.path = testConfig.supportDirPath + '/sequence.dump'
       var instance = bus.getInstance(config)
       log.info.reset()
-      
+
       instance.connect()
 
       log.info.should.have.been.calledWith('Loaded state sequence=%s', 99)
@@ -506,6 +510,32 @@ describe('BUS Module', function () {
       log.info.reset()
       target.close()
       log.info.should.have.been.calledWith('Closing BUS streams')
+    })
+
+    it('should save sequence number on file', function () {
+      var target = bus.getInstance(config)
+      target.connect()
+      target.close()
+
+      fs.existsSync(config.store.path).should.be.true
+    })
+
+    it('should persist last sequence number', function () {
+      var handler
+      var evtFrames = toFrames([
+        'identity',
+        '/test/1/topic', 1, 'producer',
+        '2016-11-18T14:36:49.007Z', 'uuid', 'event-data'
+      ])
+      collectorStub.on = function(msg, fn) { handler = fn }
+      var target = bus.getInstance(config)
+      target.connect()
+      handler.apply(null, evtFrames)
+      target.close()
+
+      fs.existsSync(config.store.path).should.be.true
+      var data = fs.readFileSync(config.store.path, 'utf8')
+      JSON.parse(data).should.be.eql(1)
     })
   })
 })
