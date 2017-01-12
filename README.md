@@ -61,6 +61,12 @@ Help command is available
      -t: Topic used to publish events
      -i: Publish interval (in ms)
 
+### Command line using global install
+
+   $ npm i micro-toolkit-event-bus-zeromq -g
+
+   $ micro-pub
+
 ## Event Subscriber
 
 The event subscriber allows you to subscribe events from the event bus. You can use a programatic interface or the command line tool.
@@ -114,6 +120,12 @@ Help command is available
      -a: Event Bus Address
      -t: Topics to subscribe events (eg: /a/b,/ac)
 
+### Command line using global install
+
+   $ npm i micro-toolkit-event-bus-zeromq -g
+
+   $ micro-sub
+
 ## Event BUS
 
 The event subscriber allows you to subscribe events from the event bus. You can use a programatic interface or the command line tool.
@@ -163,3 +175,9 @@ Help command is available
      -s: Event Bus Snapshot Address
      -p: Event Bus Publisher Address
      -c: Event Bus Collector Address
+
+### Command line using global install
+
+   $ npm i micro-toolkit-event-bus-zeromq -g
+
+   $ micro-bus
