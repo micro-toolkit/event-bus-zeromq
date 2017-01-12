@@ -7,13 +7,13 @@
     "test": "TZ=utc NODE_ENV=test istanbul cover node_modules/mocha/bin/_mocha",
     "test-debug": "TZ=utc NODE_ENV=test mocha --watch",
     "lint": "eslint .",
-    "preversion": "npm lint && npm test",
+    "preversion": "npm run lint && npm test",
     "postversion": "git push && git push --tags && npm publish ."
   },
   "bin": {
     "micro-bus": "./bin/bus",
     "micro-pub": "./bin/publisher",
-    "micro-sub": "./bin/subscriber" 
+    "micro-sub": "./bin/subscriber"
   },
   "repository": {
     "type": "git",
