@@ -5,19 +5,27 @@ var _ = require('lodash')
 var help = {
   's': 'Event Bus Snapshot Address',
   'p': 'Event Bus Publisher Address',
-  'c': 'Event Bus Collector Address'
+  'c': 'Event Bus Collector Address',
+  'f': 'Event Bus Sequence storage fullpath',
+  'db': 'Event Bus db url'
 }
 
 var defaults = {
   snapshot: 'tcp://127.0.0.1:5556',
   publisher: 'tcp://127.0.0.1:5557',
-  collector: 'tcp://127.0.0.1:5558'
+  collector: 'tcp://127.0.0.1:5558',
+  store: {
+    path: '/tmp/bus_sequence.dump',
+    dbUrl: 'mongodb://localhost/event_bus'
+  }
 }
 
 var helpDefaults = {
   s: defaults.snapshot,
   p: defaults.publisher,
-  c: defaults.collector
+  c: defaults.collector,
+  f: defaults.store.path,
+  db: defaults.store.dbUrl
 }
 
 var argv = require('./setup')('bin/bus', help, helpDefaults)
@@ -25,7 +33,11 @@ var argv = require('./setup')('bin/bus', help, helpDefaults)
 var conf = {
   snapshot: argv.s || null,
   publisher: argv.p,
-  collector: argv.c
+  collector: argv.c,
+  store: {
+    path: argv.f,
+    dbUrl: argv.db
+  }
 }
 
 var params = _.defaults({}, conf, defaults)
