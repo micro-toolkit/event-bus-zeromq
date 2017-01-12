@@ -1,12 +1,14 @@
 {
   "name": "micro-toolkit-event-bus-zeromq",
-  "version": "1.0.0",
+  "version": "0.0.0",
   "description": "The ØMQ implementation of event BUS based on ØMQ Clone Pattern and Clustered Hashmap Protocol.",
   "main": "index.js",
   "scripts": {
     "test": "TZ=utc NODE_ENV=test istanbul cover node_modules/mocha/bin/_mocha",
     "test-debug": "TZ=utc NODE_ENV=test mocha --watch",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "preversion": "npm lint && npm test",
+    "postversion": "git push && git push --tags && npm publish ."
   },
   "repository": {
     "type": "git",
