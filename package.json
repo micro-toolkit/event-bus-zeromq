@@ -8,6 +8,11 @@
     "test-debug": "TZ=utc NODE_ENV=test mocha --watch",
     "lint": "eslint ."
   },
+  "bin": {
+    "micro-bus": "./bin/bus",
+    "micro-pub": "./bin/publisher",
+    "micro-sub": "./bin/subscriber" 
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/micro-toolkit/event-bus-zeromq.git"
