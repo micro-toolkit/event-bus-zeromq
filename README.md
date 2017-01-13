@@ -170,11 +170,13 @@ Help command is available
     $ bin/bus --debug
 
     With parameters
-    $ bin/bus -s tcp://127.0.0.1:5556 -p tcp://127.0.0.1:5557 -c tcp://127.0.0.1:5558
+     $ bin/bus -s tcp://127.0.0.1:5556 -p tcp://127.0.0.1:5557 -c tcp://127.0.0.1:5558 -f /tmp/bus_sequence.dump -db mongodb://localhost/event_bus
 
-     -s: Event Bus Snapshot Address
-     -p: Event Bus Publisher Address
-     -c: Event Bus Collector Address
+      -s: Event Bus Snapshot Address
+      -p: Event Bus Publisher Address
+      -c: Event Bus Collector Address
+      -f: Event Bus Sequence storage fullpath
+      -db: Event Bus db url
 
 ### Command line using global install
 
