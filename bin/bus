@@ -41,7 +41,7 @@ var conf = {
 }
 
 var params = _.defaults({}, conf, defaults)
-var config = _.pick(params, ['snapshot', 'publisher', 'collector'])
+var config = _.pick(params, ['snapshot', 'publisher', 'collector', 'store'])
 var busFactory = require('../lib/bus')
 var bus = busFactory.getInstance(config)
 bus.connect()
