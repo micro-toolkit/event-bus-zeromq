@@ -7,7 +7,7 @@ var help = {
   'p': 'Event Bus Publisher Address',
   'c': 'Event Bus Collector Address',
   'f': 'Event Bus Sequence storage fullpath',
-  'db': 'Event Bus db url'
+  'u': 'Event Bus db url'
 }
 
 var defaults = {
@@ -25,7 +25,7 @@ var helpDefaults = {
   p: defaults.publisher,
   c: defaults.collector,
   f: defaults.store.path,
-  db: defaults.store.dbUrl
+  u: defaults.store.dbUrl
 }
 
 var argv = require('./setup')('bin/bus', help, helpDefaults)
@@ -36,7 +36,7 @@ var conf = {
   collector: argv.c,
   store: {
     path: argv.f,
-    dbUrl: argv.db
+    dbUrl: argv.u
   }
 }
 
