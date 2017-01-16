@@ -40,7 +40,7 @@ var conf = {
   }
 }
 
-var params = _.defaults({}, conf, defaults)
+var params = _.defaultsDeep({}, conf, defaults)
 var config = _.pick(params, ['snapshot', 'publisher', 'collector', 'store'])
 var busFactory = require('../lib/bus')
 var bus = busFactory.getInstance(config)
