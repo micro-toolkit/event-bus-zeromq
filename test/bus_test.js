@@ -264,8 +264,9 @@ describe('BUS Module', function () {
             var newEventFrames = toFrames([
               'identity',
               '/test/1/topic', 0, 'producer',
-              '2016-11-18T14:36:49.007Z', 'uuid', 'event-data'
+              '2016-11-18T14:36:49.007Z', 'uuid'
             ])
+            newEventFrames.push(msgpack.pack('event-data'))
             return handlerCollector.apply(null, newEventFrames)
           })
 
@@ -291,8 +292,9 @@ describe('BUS Module', function () {
             var otherEventFrames = toFrames([
               'identity',
               '/test/1/topic', 1, 'producer',
-              '2016-11-18T14:36:49.007Z', 'uuid', 'event-data'
+              '2016-11-18T14:36:49.007Z', 'uuid'
             ])
+            otherEventFrames.push(msgpack.pack('event-data'))
 
             return handlerCollector.apply(null, otherEventFrames)
               .then(function () {
@@ -311,8 +313,10 @@ describe('BUS Module', function () {
             var otherTopicEventFrames = toFrames([
               'identity',
               '/test-other', 0, 'producer',
-              '2016-11-18T14:36:49.007Z', 'uuid', 'event-data'
+              '2016-11-18T14:36:49.007Z', 'uuid'
             ])
+            otherTopicEventFrames.push(msgpack.pack('event-data'))
+
             return handlerCollector.apply(null, otherTopicEventFrames)
               .then(function(){
                 return handler.apply(null, frames)
@@ -341,8 +345,9 @@ describe('BUS Module', function () {
             var otherTopicEventFrames = toFrames([
               'identity',
               '/test-other', 0, 'producer',
-              '2016-11-18T14:36:49.007Z', 'uuid', 'event-data'
+              '2016-11-18T14:36:49.007Z', 'uuid'
             ])
+            otherTopicEventFrames.push(msgpack.pack('event-data'))
             frames = toFrames(['identity', 'SYNCSTART', '/test/1/topic,/test-other', 0])
 
             return handlerCollector.apply(null, otherTopicEventFrames)
@@ -362,8 +367,10 @@ describe('BUS Module', function () {
             var otherEventFrames = toFrames([
               'identity',
               '/test/1/topic', 0, 'producer',
-              '2016-11-18T14:36:49.007Z', 'uuid', 'event-data'
+              '2016-11-18T14:36:49.007Z', 'uuid'
             ])
+            otherEventFrames.push(msgpack.pack('event-data'))
+
             frames = toFrames(['identity', 'SYNCSTART', '/test/1/topic', 1])
             return handlerCollector.apply(null, otherEventFrames)
               .then(function () {
@@ -435,8 +442,10 @@ describe('BUS Module', function () {
       var evtFrames = toFrames([
         'identity',
         '/test/1/topic', 1, 'producer',
-        '2016-11-18T14:36:49.007Z', 'uuid', 'event-data'
+        '2016-11-18T14:36:49.007Z', 'uuid'
       ])
+      evtFrames.push(msgpack.pack('event-data'))
+
       collectorStub.on = function(msg, fn) { handler = fn }
       bus.getInstance(config)
 
@@ -460,8 +469,10 @@ describe('BUS Module', function () {
       var evtFrames = toFrames([
         'identity',
         '/test/1/topic', 1, 'producer',
-        '2016-11-18T14:36:49.007Z', 'uuid', 'event-data'
+        '2016-11-18T14:36:49.007Z', 'uuid'
       ])
+      evtFrames.push(msgpack.pack('event-data'))
+
       config.store.path = testConfig.supportDirPath + '/unkown_sequence.dump'
       collectorStub.on = function(msg, fn) { handler = fn }
       var instance = bus.getInstance(config)
@@ -476,8 +487,10 @@ describe('BUS Module', function () {
       var evtFrames = toFrames([
         'identity',
         '/test/1/topic', 1, 'producer',
-        '2016-11-18T14:36:49.007Z', 'uuid', 'event-data'
+        '2016-11-18T14:36:49.007Z', 'uuid'
       ])
+      evtFrames.push(msgpack.pack('event-data'))
+
       config.store.path = testConfig.supportDirPath + '/sequence.dump'
       collectorStub.on = function(msg, fn) { handler = fn }
       var instance = bus.getInstance(config)
@@ -492,8 +505,10 @@ describe('BUS Module', function () {
       var evtFrames = toFrames([
         'identity',
         '/test/1/topic', 1, 'producer',
-        '2016-11-18T14:36:49.007Z', 'uuid', 'event-data'
+        '2016-11-18T14:36:49.007Z', 'uuid'
       ])
+      evtFrames.push(msgpack.pack('event-data'))
+
       collectorStub.on = function(msg, fn) { handler = fn }
       bus.getInstance(config)
       handler.apply(null, evtFrames)
