@@ -3,6 +3,7 @@ var zmq = require('zmq')
 var Logger = require('../logger')
 var logHelper = require('./support/log_helper')
 var zmqHelper = require('./support/zmq_helper')
+var msgpack = require('msgpack')
 
 describe('Publisher Module', function () {
   var socket, publisher, log, config, clock
@@ -108,6 +109,7 @@ describe('Publisher Module', function () {
     })
 
     it('should send a 0MQ message with RFC format', function () {
+      var serializedData = msgpack.pack('data')
       target.send('/topic/test', "data")
       socket.send.should.have.been.calledWith(
         sinon.match(function (value) {
@@ -117,7 +119,7 @@ describe('Publisher Module', function () {
             && value[2] === 'producer'
             && value[3] === '2016-11-10T16:00:00.000Z'
             && value[4] === 'uuid'
-            && value[5] === 'data'
+            && value[5].equals(serializedData)
         }, 'matches RFC')
       )
     })

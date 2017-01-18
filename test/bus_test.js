@@ -5,6 +5,7 @@ var Logger = require('../logger')
 var toFrames = require('./support/frames_helper').toFrames
 var fs = require('fs')
 var eventInstanceMemoryFactory = require('./support/memory_event_store')
+var msgpack = require('msgpack')
 
 describe('BUS Module', function () {
   var pubStub, collectorStub, snapshotStub, log, config, bus
@@ -508,11 +509,15 @@ describe('BUS Module', function () {
 
     it('should send 0MQ message in proper RFC format', function () {
       var handler
+
+      var serializedData = msgpack.pack('event-data')
       var evtFrames = toFrames([
         'identity',
         '/test/1/topic', 1, 'producer',
-        '2016-11-18T14:36:49.007Z', 'uuid', 'event-data'
+        '2016-11-18T14:36:49.007Z', 'uuid'
       ])
+      evtFrames.push(serializedData)
+
       collectorStub.on = function(msg, fn) { handler = fn }
       bus.getInstance(config)
 
@@ -526,7 +531,7 @@ describe('BUS Module', function () {
             && value[2] === 'producer'
             && value[3] === '2016-11-18T14:36:49.007Z'
             && value[4] === 'uuid'
-            && value[5] === 'event-data'
+            && value[5].equals(serializedData)
         }, 'matches frames specified in RFC')
       )
     })
