@@ -4,6 +4,7 @@ var Logger = require('../logger')
 var logHelper = require('./support/log_helper')
 var zmqHelper = require('./support/zmq_helper')
 var msgpack = require('msgpack')
+var _ = require('lodash')
 
 describe('Publisher Module', function () {
   var socket, publisher, log, config, clock
@@ -105,6 +106,16 @@ describe('Publisher Module', function () {
       target.send('/topic/test', "data")
       socket.send.should.have.been.calledWith(
         sinon.match.has('length', 6)
+      )
+    })
+
+    it('should send complex data properly', function () {
+      target.send('/topic/test', {foo: 'bar'})
+      socket.send.should.have.been.calledWith(
+        sinon.match(function (value) {
+          var data = value[5]
+          return _.isEqual(msgpack.unpack(data), {foo: 'bar'})
+        }, 'the data sent has not been serialized properly.')
       )
     })
 

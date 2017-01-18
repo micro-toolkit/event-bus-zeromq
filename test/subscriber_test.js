@@ -379,7 +379,7 @@ describe('Subscriber Module', function () {
         '/test/1/topic', 1, 'producer',
         '2016-11-18T14:36:49.007Z', 'uuid'
       ])
-      evtFrames.push(serializedData) //todo, as this should not go through the node buffer AND msgpack. Discuss with pedro?
+      evtFrames.push(serializedData)
 
       var spy = sinon.spy()
       subStub.on = function(msg, fn) { handler = fn }
@@ -398,7 +398,7 @@ describe('Subscriber Module', function () {
         '/test/1/topic', 1, 'producer',
         '2016-11-18T14:36:49.007Z', 'uuid'
       ])
-      evtFrames.push(serializedData) //todo, as this should not go through the node buffer AND msgpack. Discuss with pedro?
+      evtFrames.push(serializedData)
 
 
       var spy = sinon.spy()
@@ -421,7 +421,7 @@ describe('Subscriber Module', function () {
         '/test/1/topic', 2, 'producer',
         '2016-11-18T14:36:49.007Z', 'uuid'
       ])
-      evtFrames.push(serializedData) //todo, as this should not go through the node buffer AND msgpack. Discuss with pedro?
+      evtFrames.push(serializedData)
       var spy = sinon.spy()
       subStub.on = function(msg, fn) { handler = fn }
       var target = subscriber.getInstance()
@@ -445,7 +445,7 @@ describe('Subscriber Module', function () {
         '/test/1/topic', 1, 'producer',
         '2016-11-18T14:36:49.007Z', 'uuid'
       ])
-      evtFrames.push(serializedData) //todo, as this should not go through the node buffer AND msgpack. Discuss with pedro?
+      evtFrames.push(serializedData)
       var spy = sinon.spy()
       subStub.on = function(msg, fn) { handler = fn }
       var target = subscriber.getInstance()
@@ -466,7 +466,7 @@ describe('Subscriber Module', function () {
         '/test/1/topic', 1, 'producer',
         '2016-11-18T14:36:49.007Z', 'uuid'
       ])
-      evtFrames.push(serializedData) //todo, as this should not go through the node buffer AND msgpack. Discuss with pedro?
+      evtFrames.push(serializedData)
 
       var firstSpy = sinon.spy()
       var secondSpy = sinon.spy()
@@ -478,6 +478,25 @@ describe('Subscriber Module', function () {
       handler.apply(null, evtFrames)
       firstSpy.should.have.been.calledWith('event-data')
       secondSpy.should.have.been.calledWith('event-data')
+    })
+
+    it('should receive complex data properly decoded', function () {
+      var handler
+      var serializedData = msgpack.pack({mydata: {isParsed: ['properly']}})
+      var evtFrames = toFrames([
+        '/test/1/topic', 1, 'producer',
+        '2016-11-18T14:36:49.007Z', 'uuid'
+      ])
+      evtFrames.push(serializedData)
+
+      var spy = sinon.spy()
+      subStub.on = function(msg, fn) { handler = fn }
+      var target = subscriber.getInstance()
+      target.on('/test/1/topic', spy)
+      target.connect()
+      handler.apply(null, evtFrames)
+
+      spy.should.have.been.calledWith({mydata: {isParsed: ['properly']}})
     })
   })
 
