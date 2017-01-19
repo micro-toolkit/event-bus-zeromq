@@ -7,7 +7,6 @@ var toDataFrames = require('./support/frames_helper').toDataFrames
 var logHelper = require('./support/log_helper')
 var zmqHelper = require('./support/zmq_helper')
 var _ = require('lodash')
-var msgpack = require('msgpack')
 
 describe('Subscriber Module', function () {
   var subStub, dealerStub, log, subscriber
