@@ -126,8 +126,8 @@ describe('Event Module', function () {
         actual.timestamp.should.be.eql(expected)
       })
 
-      describe('The data should be packed properly for the datatype', function () {
-        it('string', function () {
+      describe('should decode the data frame and', function () {
+        it('should decode string values properly', function () {
           var frames = [ '/example/topic', 99, 'publisher',
             '2016-11-10T16:00:00.000Z', 'uuid', msgpack.pack('something') ]
 
@@ -136,7 +136,7 @@ describe('Event Module', function () {
           actual.data.should.eql(expected)
         })
 
-        it('integer', function () {
+        it('should decode integer values properly', function () {
           var frames = [ '/example/topic', 99, 'publisher',
             '2016-11-10T16:00:00.000Z', 'uuid', msgpack.pack(1337) ]
 
@@ -145,7 +145,7 @@ describe('Event Module', function () {
           actual.data.should.eql(expected)
         })
 
-        it('boolean - false', function () {
+        it('should decode boolean false values properly', function () {
           var frames = [ '/example/topic', 99, 'publisher',
             '2016-11-10T16:00:00.000Z', 'uuid', msgpack.pack(false) ]
 
@@ -154,7 +154,7 @@ describe('Event Module', function () {
           actual.data.should.eql(expected)
         })
 
-        it('boolean - true', function () {
+        it('should decode boolean true values properly', function () {
           var frames = [ '/example/topic', 99, 'publisher',
             '2016-11-10T16:00:00.000Z', 'uuid', msgpack.pack(true) ]
 
@@ -163,7 +163,7 @@ describe('Event Module', function () {
           actual.data.should.eql(expected)
         })
 
-        it('null - coerced to null', function () {
+        it('should decode null values properly', function () {
           var frames = [ '/example/topic', 99, 'publisher',
             '2016-11-10T16:00:00.000Z', 'uuid', msgpack.pack(null) ]
 
@@ -172,7 +172,7 @@ describe('Event Module', function () {
           isEqual.should.eql(true)
         })
 
-        it('undefined - coerced to null', function () {
+        it('should decode undefined values as null properly', function () {
           var frames = [ '/example/topic', 99, 'publisher',
             '2016-11-10T16:00:00.000Z', 'uuid', msgpack.pack(undefined) ]
 
@@ -181,7 +181,7 @@ describe('Event Module', function () {
           isEqual.should.eql(true)
         })
 
-        it('array', function () {
+        it('should decode array values properly', function () {
           var frames = [ '/example/topic', 99, 'publisher',
             '2016-11-10T16:00:00.000Z', 'uuid', msgpack.pack([1, 'foo']) ]
 
@@ -190,7 +190,7 @@ describe('Event Module', function () {
           actual.data.should.eql(expected)
         })
 
-        it('Complex Object (JS object)', function () {
+        it('should decode complex objects (JS object) properly', function () {
           var frames = [ '/example/topic', 99, 'publisher',
             '2016-11-10T16:00:00.000Z', 'uuid', msgpack.pack({a: 1, b: ['bar', false]}) ]
 
@@ -274,8 +274,8 @@ describe('Event Module', function () {
       should.not.exist(msgpack.unpack(actual[5]))
     })
 
-    describe('the data should be encoded properly for the types', function () {
-      it('string', function () {
+    describe('should encode the data frame and', function () {
+      it('should encode string values properly', function () {
         var evt = eventFactory.getInstance(
           'publisher', '/example/topic', 'something',
           99, 'uuid', new Date('2016-11-10 16:00:00'))
@@ -286,7 +286,7 @@ describe('Event Module', function () {
         actual[5].should.eql(expected)
       })
 
-      it('integer', function () {
+      it('should encode integer values properly', function () {
         var evt = eventFactory.getInstance(
           'publisher', '/example/topic', 123,
           99, 'uuid', new Date('2016-11-10 16:00:00'))
@@ -297,7 +297,7 @@ describe('Event Module', function () {
         actual[5].should.eql(expected)
       })
 
-      it('boolean - false', function () {
+      it('should encode boolean false values properly', function () {
         var evt = eventFactory.getInstance(
           'publisher', '/example/topic', false,
           99, 'uuid', new Date('2016-11-10 16:00:00'))
@@ -308,7 +308,7 @@ describe('Event Module', function () {
         actual[5].should.eql(expected)
       })
 
-      it('boolean - true', function () {
+      it('should encode boolean true values properly', function () {
         var evt = eventFactory.getInstance(
           'publisher', '/example/topic', true,
           99, 'uuid', new Date('2016-11-10 16:00:00'))
@@ -319,7 +319,7 @@ describe('Event Module', function () {
         actual[5].should.eql(expected)
       })
 
-      it('null - coerced to null', function () {
+      it('should encode null values properly', function () {
         var evt = eventFactory.getInstance(
           'publisher', '/example/topic', null,
           99, 'uuid', new Date('2016-11-10 16:00:00'))
@@ -330,7 +330,7 @@ describe('Event Module', function () {
         actual[5].should.eql(expected)
       })
 
-      it('undefined - coerced to null', function () {
+      it('should encode undefined to the null value properly', function () {
         var evt = eventFactory.getInstance(
           'publisher', '/example/topic', undefined,
           99, 'uuid', new Date('2016-11-10 16:00:00'))
@@ -341,7 +341,7 @@ describe('Event Module', function () {
         actual[5].should.eql(expected)
       })
 
-      it('array', function () {
+      it('should encode array values properly', function () {
         var evt = eventFactory.getInstance(
           'publisher', '/example/topic', [1, 'a'],
           99, 'uuid', new Date('2016-11-10 16:00:00'))
@@ -352,7 +352,7 @@ describe('Event Module', function () {
         actual[5].should.eql(expected)
       })
 
-      it('Complex Object (JS Object)', function () {
+      it('should encode complex objects (JS Object) properly', function () {
         var evt = eventFactory.getInstance(
           'publisher', '/example/topic', {a: 1, b: [1, 'bar']},
           99, 'uuid', new Date('2016-11-10 16:00:00'))
