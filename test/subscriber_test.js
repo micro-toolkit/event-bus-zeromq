@@ -3,6 +3,7 @@ var zmq = require('zmq')
 var Logger = require('../logger')
 var fs = require('fs')
 var toFrames = require('./support/frames_helper').toFrames
+var toDataFrames = require('./support/frames_helper').toDataFrames
 var logHelper = require('./support/log_helper')
 var zmqHelper = require('./support/zmq_helper')
 var _ = require('lodash')
@@ -229,12 +230,10 @@ describe('Subscriber Module', function () {
       it('should trigger snapshot events', function () {
         var handler
 
-        var serializedData = msgpack.pack('event-data')
-        var evtFrames = toFrames([
+        var evtFrames = toDataFrames([
           'SYNC', '/test/1/topic', 1, 'producer',
-          '2016-11-18T14:36:49.007Z', 'uuid'
+          '2016-11-18T14:36:49.007Z', 'uuid', 'event-data'
         ])
-        evtFrames.push(serializedData)
 
         var spy = sinon.spy()
         dealerStub.on = function(msg, fn) { handler = fn }
@@ -248,12 +247,10 @@ describe('Subscriber Module', function () {
       it('should trigger snapshot events with partial topic match', function () {
         var handler
 
-        var serializedData = msgpack.pack('event-data')
-        var evtFrames = toFrames([
+        var evtFrames = toDataFrames([
           'SYNC', '/test/1/topic', 1, 'producer',
-          '2016-11-18T14:36:49.007Z', 'uuid'
+          '2016-11-18T14:36:49.007Z', 'uuid', 'event-data'
         ])
-        evtFrames.push(serializedData)
         var spy = sinon.spy()
         dealerStub.on = function(msg, fn) { handler = fn }
         var target = subscriber.getInstance()
@@ -265,12 +262,11 @@ describe('Subscriber Module', function () {
 
       it('should not trigger snapshot events without topic match', function () {
         var handler
-        var serializedData = msgpack.pack('event-data')
+
         var evtFrames = toFrames([
           'SYNC', '/test/1/topic', 1, 'producer',
-          '2016-11-18T14:36:49.007Z', 'uuid'
+          '2016-11-18T14:36:49.007Z', 'uuid', 'event-data'
         ])
-        evtFrames.push(serializedData)
         var spy = sinon.spy()
         dealerStub.on = function(msg, fn) { handler = fn }
         var target = subscriber.getInstance()
@@ -282,7 +278,7 @@ describe('Subscriber Module', function () {
 
       it('should log warning information about topic mismatch', function () {
         var handler
-        var evtFrames = toFrames([
+        var evtFrames = toDataFrames([
           'SYNC', '/test/1/topic', 1, 'producer',
           '2016-11-18T14:36:49.007Z', 'uuid', 'event-data'
         ])
@@ -339,12 +335,10 @@ describe('Subscriber Module', function () {
       it('should attach subscriber socket only after SYNCEND command', function () {
         var handler
 
-        var serializedData = msgpack.pack('event-data')
-        var evtFrames = toFrames([
+        var evtFrames = toDataFrames([
           'SYNC', '/test/1/topic', 1, 'producer',
-          '2016-11-18T14:36:49.007Z', 'uuid'
+          '2016-11-18T14:36:49.007Z', 'uuid', 'event-data'
         ])
-        evtFrames.push(serializedData)
 
         dealerStub.on = function(msg, fn) { handler = fn }
         var target = subscriber.getInstance()
@@ -374,12 +368,10 @@ describe('Subscriber Module', function () {
 
     it('should receive events from subscribed topics', function () {
       var handler
-      var serializedData = msgpack.pack('event-data')
-      var evtFrames = toFrames([
+      var evtFrames = toDataFrames([
         '/test/1/topic', 1, 'producer',
-        '2016-11-18T14:36:49.007Z', 'uuid'
+        '2016-11-18T14:36:49.007Z', 'uuid', 'event-data'
       ])
-      evtFrames.push(serializedData)
 
       var spy = sinon.spy()
       subStub.on = function(msg, fn) { handler = fn }
@@ -393,12 +385,10 @@ describe('Subscriber Module', function () {
 
     it('should receive events from subscribed topics with partial match', function () {
       var handler
-      var serializedData = msgpack.pack('event-data')
-      var evtFrames = toFrames([
+      var evtFrames = toDataFrames([
         '/test/1/topic', 1, 'producer',
-        '2016-11-18T14:36:49.007Z', 'uuid'
+        '2016-11-18T14:36:49.007Z', 'uuid', 'event-data'
       ])
-      evtFrames.push(serializedData)
 
 
       var spy = sinon.spy()
@@ -416,12 +406,11 @@ describe('Subscriber Module', function () {
       var syncEndFrames = toFrames(['SYNCEND', '/test/1/topic', 1])
       dealerStub.on = function(msg, fn) { dealerHandler = fn }
 
-      var serializedData = msgpack.pack('event-data')
-      var evtFrames = toFrames([
+      var evtFrames = toDataFrames([
         '/test/1/topic', 2, 'producer',
-        '2016-11-18T14:36:49.007Z', 'uuid'
+        '2016-11-18T14:36:49.007Z', 'uuid', 'event-data'
       ])
-      evtFrames.push(serializedData)
+
       var spy = sinon.spy()
       subStub.on = function(msg, fn) { handler = fn }
       var target = subscriber.getInstance()
@@ -440,12 +429,11 @@ describe('Subscriber Module', function () {
       var syncEndFrames = toFrames(['SYNCEND', '/test/1/topic', 1])
       dealerStub.on = function(msg, fn) { dealerHandler = fn }
 
-      var serializedData = msgpack.pack('event-data')
-      var evtFrames = toFrames([
+      var evtFrames = toDataFrames([
         '/test/1/topic', 1, 'producer',
-        '2016-11-18T14:36:49.007Z', 'uuid'
+        '2016-11-18T14:36:49.007Z', 'uuid', 'event-data'
       ])
-      evtFrames.push(serializedData)
+
       var spy = sinon.spy()
       subStub.on = function(msg, fn) { handler = fn }
       var target = subscriber.getInstance()
@@ -461,12 +449,10 @@ describe('Subscriber Module', function () {
     it('should receive events from subscribed topics to all registered handlers', function () {
       var handler
 
-      var serializedData = msgpack.pack('event-data')
-      var evtFrames = toFrames([
+      var evtFrames = toDataFrames([
         '/test/1/topic', 1, 'producer',
-        '2016-11-18T14:36:49.007Z', 'uuid'
+        '2016-11-18T14:36:49.007Z', 'uuid', 'event-data'
       ])
-      evtFrames.push(serializedData)
 
       var firstSpy = sinon.spy()
       var secondSpy = sinon.spy()
@@ -482,12 +468,10 @@ describe('Subscriber Module', function () {
 
     it('should receive complex data properly decoded', function () {
       var handler
-      var serializedData = msgpack.pack({mydata: {isParsed: ['properly']}})
-      var evtFrames = toFrames([
+      var evtFrames = toDataFrames([
         '/test/1/topic', 1, 'producer',
-        '2016-11-18T14:36:49.007Z', 'uuid'
+        '2016-11-18T14:36:49.007Z', 'uuid', {mydata: {isParsed: ['properly']}}
       ])
-      evtFrames.push(serializedData)
 
       var spy = sinon.spy()
       subStub.on = function(msg, fn) { handler = fn }
