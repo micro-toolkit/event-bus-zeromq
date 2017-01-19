@@ -3,8 +3,10 @@ var logHelper = require('./support/log_helper')
 var zmq = require('zmq')
 var Logger = require('../logger')
 var toFrames = require('./support/frames_helper').toFrames
+var toDataFrames = require('./support/frames_helper').toDataFrames
 var fs = require('fs')
 var eventInstanceMemoryFactory = require('./support/memory_event_store')
+var msgpack = require('msgpack')
 
 describe('BUS Module', function () {
   var pubStub, collectorStub, snapshotStub, log, config, bus
@@ -260,7 +262,7 @@ describe('BUS Module', function () {
 
         describe('when previous events were received', function () {
           beforeEach(function () {
-            var newEventFrames = toFrames([
+            var newEventFrames = toDataFrames([
               'identity',
               '/test/1/topic', 0, 'producer',
               '2016-11-18T14:36:49.007Z', 'uuid', 'event-data'
@@ -287,7 +289,7 @@ describe('BUS Module', function () {
           })
 
           it('should return a SYNC command per each event', function () {
-            var otherEventFrames = toFrames([
+            var otherEventFrames = toDataFrames([
               'identity',
               '/test/1/topic', 1, 'producer',
               '2016-11-18T14:36:49.007Z', 'uuid', 'event-data'
@@ -307,11 +309,12 @@ describe('BUS Module', function () {
           })
 
           it('should return a SYNC command per each event filtered by topic', function () {
-            var otherTopicEventFrames = toFrames([
+            var otherTopicEventFrames = toDataFrames([
               'identity',
               '/test-other', 0, 'producer',
               '2016-11-18T14:36:49.007Z', 'uuid', 'event-data'
             ])
+
             return handlerCollector.apply(null, otherTopicEventFrames)
               .then(function(){
                 return handler.apply(null, frames)
@@ -337,7 +340,7 @@ describe('BUS Module', function () {
           })
 
           it('should return a SYNC command per each event filtered by topics', function () {
-            var otherTopicEventFrames = toFrames([
+            var otherTopicEventFrames = toDataFrames([
               'identity',
               '/test-other', 0, 'producer',
               '2016-11-18T14:36:49.007Z', 'uuid', 'event-data'
@@ -363,6 +366,7 @@ describe('BUS Module', function () {
               '/test/1/topic', 0, 'producer',
               '2016-11-18T14:36:49.007Z', 'uuid', 'event-data'
             ])
+
             frames = toFrames(['identity', 'SYNCSTART', '/test/1/topic', 1])
             return handlerCollector.apply(null, otherEventFrames)
               .then(function () {
@@ -431,11 +435,12 @@ describe('BUS Module', function () {
 
     it('should publish incoming events to publisher stream', function () {
       var handler
-      var evtFrames = toFrames([
+      var evtFrames = toDataFrames([
         'identity',
         '/test/1/topic', 1, 'producer',
         '2016-11-18T14:36:49.007Z', 'uuid', 'event-data'
       ])
+
       collectorStub.on = function(msg, fn) { handler = fn }
       bus.getInstance(config)
 
@@ -456,11 +461,12 @@ describe('BUS Module', function () {
 
     it('should use sequence state 0 when no state stored', function () {
       var handler
-      var evtFrames = toFrames([
+      var evtFrames = toDataFrames([
         'identity',
         '/test/1/topic', 1, 'producer',
         '2016-11-18T14:36:49.007Z', 'uuid', 'event-data'
       ])
+
       config.store.path = testConfig.supportDirPath + '/unkown_sequence.dump'
       collectorStub.on = function(msg, fn) { handler = fn }
       var instance = bus.getInstance(config)
@@ -472,11 +478,12 @@ describe('BUS Module', function () {
 
     it('should use sequence state loaded from configuration', function () {
       var handler
-      var evtFrames = toFrames([
+      var evtFrames = toDataFrames([
         'identity',
         '/test/1/topic', 1, 'producer',
         '2016-11-18T14:36:49.007Z', 'uuid', 'event-data'
       ])
+
       config.store.path = testConfig.supportDirPath + '/sequence.dump'
       collectorStub.on = function(msg, fn) { handler = fn }
       var instance = bus.getInstance(config)
@@ -488,11 +495,12 @@ describe('BUS Module', function () {
 
     it('should increment sequence on each new event', function () {
       var handler
-      var evtFrames = toFrames([
+      var evtFrames = toDataFrames([
         'identity',
         '/test/1/topic', 1, 'producer',
         '2016-11-18T14:36:49.007Z', 'uuid', 'event-data'
       ])
+
       collectorStub.on = function(msg, fn) { handler = fn }
       bus.getInstance(config)
       handler.apply(null, evtFrames)
@@ -508,11 +516,14 @@ describe('BUS Module', function () {
 
     it('should send 0MQ message in proper RFC format', function () {
       var handler
-      var evtFrames = toFrames([
+
+      var serializedData = msgpack.pack('event-data')
+      var evtFrames = toDataFrames([
         'identity',
         '/test/1/topic', 1, 'producer',
         '2016-11-18T14:36:49.007Z', 'uuid', 'event-data'
       ])
+
       collectorStub.on = function(msg, fn) { handler = fn }
       bus.getInstance(config)
 
@@ -526,7 +537,7 @@ describe('BUS Module', function () {
             && value[2] === 'producer'
             && value[3] === '2016-11-18T14:36:49.007Z'
             && value[4] === 'uuid'
-            && value[5] === 'event-data'
+            && value[5].equals(serializedData)
         }, 'matches frames specified in RFC')
       )
     })
@@ -565,7 +576,7 @@ describe('BUS Module', function () {
 
     it('should persist last sequence number', function () {
       var handler
-      var evtFrames = toFrames([
+      var evtFrames = toDataFrames([
         'identity',
         '/test/1/topic', 1, 'producer',
         '2016-11-18T14:36:49.007Z', 'uuid', 'event-data'

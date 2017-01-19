@@ -1,5 +1,6 @@
 var uuidGen = require('uuid')
 var eventFactory = require('../lib/event')
+var msgpack = require('msgpack')
 
 describe('Event Module', function () {
 
@@ -80,7 +81,7 @@ describe('Event Module', function () {
 
       beforeEach(function () {
         frames = [ '/example/topic', 99, 'publisher',
-          '2016-11-10T16:00:00.000Z', 'uuid', 'something' ]
+          '2016-11-10T16:00:00.000Z', 'uuid', msgpack.pack('something') ]
       })
 
       it('should return a event instance', function () {
@@ -123,6 +124,80 @@ describe('Event Module', function () {
         var actual = target(frames)
         actual.should.have.property('timestamp')
         actual.timestamp.should.be.eql(expected)
+      })
+
+      describe('should decode the data frame and', function () {
+        it('should decode string values properly', function () {
+          var frames = [ '/example/topic', 99, 'publisher',
+            '2016-11-10T16:00:00.000Z', 'uuid', msgpack.pack('something') ]
+
+          var expected = 'something'
+          var actual = target(frames)
+          actual.data.should.eql(expected)
+        })
+
+        it('should decode integer values properly', function () {
+          var frames = [ '/example/topic', 99, 'publisher',
+            '2016-11-10T16:00:00.000Z', 'uuid', msgpack.pack(1337) ]
+
+          var expected = 1337
+          var actual = target(frames)
+          actual.data.should.eql(expected)
+        })
+
+        it('should decode boolean false values properly', function () {
+          var frames = [ '/example/topic', 99, 'publisher',
+            '2016-11-10T16:00:00.000Z', 'uuid', msgpack.pack(false) ]
+
+          var expected = false
+          var actual = target(frames)
+          actual.data.should.eql(expected)
+        })
+
+        it('should decode boolean true values properly', function () {
+          var frames = [ '/example/topic', 99, 'publisher',
+            '2016-11-10T16:00:00.000Z', 'uuid', msgpack.pack(true) ]
+
+          var expected = true
+          var actual = target(frames)
+          actual.data.should.eql(expected)
+        })
+
+        it('should decode null values properly', function () {
+          var frames = [ '/example/topic', 99, 'publisher',
+            '2016-11-10T16:00:00.000Z', 'uuid', msgpack.pack(null) ]
+
+          var actual = target(frames)
+          var isEqual = actual.data === null
+          isEqual.should.eql(true)
+        })
+
+        it('should decode undefined values as null properly', function () {
+          var frames = [ '/example/topic', 99, 'publisher',
+            '2016-11-10T16:00:00.000Z', 'uuid', msgpack.pack(undefined) ]
+
+          var actual = target(frames)
+          var isEqual = actual.data === null
+          isEqual.should.eql(true)
+        })
+
+        it('should decode array values properly', function () {
+          var frames = [ '/example/topic', 99, 'publisher',
+            '2016-11-10T16:00:00.000Z', 'uuid', msgpack.pack([1, 'foo']) ]
+
+          var expected = [1, 'foo']
+          var actual = target(frames)
+          actual.data.should.eql(expected)
+        })
+
+        it('should decode complex objects (JS object) properly', function () {
+          var frames = [ '/example/topic', 99, 'publisher',
+            '2016-11-10T16:00:00.000Z', 'uuid', msgpack.pack({a: 1, b: ['bar', false]}) ]
+
+          var expected = {a: 1, b: ['bar', false]}
+          var actual = target(frames)
+          actual.data.should.eql(expected)
+        })
       })
     })
 
@@ -188,15 +263,105 @@ describe('Event Module', function () {
       actual[4].should.be.eq(evt.uuid)
     })
 
-    it('should return data on frame 5', function () {
+    it('should return decoded data on frame 5', function () {
       var actual = evt.toFrames()
-      actual[5].should.be.eq(evt.data)
+      actual[5].should.be.eql(msgpack.pack(evt.data))
     })
 
     it('should return null on frame 5 when data not specified', function () {
       evt.data = null
       var actual = evt.toFrames()
-      should.not.exist(actual[5])
+      should.not.exist(msgpack.unpack(actual[5]))
+    })
+
+    describe('should encode the data frame and', function () {
+      it('should encode string values properly', function () {
+        var evt = eventFactory.getInstance(
+          'publisher', '/example/topic', 'something',
+          99, 'uuid', new Date('2016-11-10 16:00:00'))
+
+        var expected = msgpack.pack('something')
+        var actual = evt.toFrames()
+
+        actual[5].should.eql(expected)
+      })
+
+      it('should encode integer values properly', function () {
+        var evt = eventFactory.getInstance(
+          'publisher', '/example/topic', 123,
+          99, 'uuid', new Date('2016-11-10 16:00:00'))
+
+        var expected = msgpack.pack(123)
+        var actual = evt.toFrames()
+
+        actual[5].should.eql(expected)
+      })
+
+      it('should encode boolean false values properly', function () {
+        var evt = eventFactory.getInstance(
+          'publisher', '/example/topic', false,
+          99, 'uuid', new Date('2016-11-10 16:00:00'))
+
+        var expected = msgpack.pack(false)
+        var actual = evt.toFrames()
+
+        actual[5].should.eql(expected)
+      })
+
+      it('should encode boolean true values properly', function () {
+        var evt = eventFactory.getInstance(
+          'publisher', '/example/topic', true,
+          99, 'uuid', new Date('2016-11-10 16:00:00'))
+
+        var expected = msgpack.pack(true)
+        var actual = evt.toFrames()
+
+        actual[5].should.eql(expected)
+      })
+
+      it('should encode null values properly', function () {
+        var evt = eventFactory.getInstance(
+          'publisher', '/example/topic', null,
+          99, 'uuid', new Date('2016-11-10 16:00:00'))
+
+        var expected = msgpack.pack(null)
+        var actual = evt.toFrames()
+
+        actual[5].should.eql(expected)
+      })
+
+      it('should encode undefined to the null value properly', function () {
+        var evt = eventFactory.getInstance(
+          'publisher', '/example/topic', undefined,
+          99, 'uuid', new Date('2016-11-10 16:00:00'))
+
+        var expected = msgpack.pack(null)
+        var actual = evt.toFrames()
+
+        actual[5].should.eql(expected)
+      })
+
+      it('should encode array values properly', function () {
+        var evt = eventFactory.getInstance(
+          'publisher', '/example/topic', [1, 'a'],
+          99, 'uuid', new Date('2016-11-10 16:00:00'))
+
+        var expected = msgpack.pack([1, 'a'])
+        var actual = evt.toFrames()
+
+        actual[5].should.eql(expected)
+      })
+
+      it('should encode complex objects (JS Object) properly', function () {
+        var evt = eventFactory.getInstance(
+          'publisher', '/example/topic', {a: 1, b: [1, 'bar']},
+          99, 'uuid', new Date('2016-11-10 16:00:00'))
+
+        var expected = msgpack.pack({a: 1, b: [1, 'bar']})
+        var actual = evt.toFrames()
+
+        actual[5].should.eql(expected)
+      })
     })
   })
 })

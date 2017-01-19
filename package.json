@@ -50,6 +50,7 @@
     "logger-facade-nodejs": "^1.0.1",
     "micro-toolkit-event-storage-mongo": "^1.0.0",
     "minimist": "^1.2.0",
+    "msgpack": "^1.0.2",
     "uuid": "^3.0.1",
     "zmq": "^2.15.3"
   }
