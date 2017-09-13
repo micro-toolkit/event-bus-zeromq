@@ -223,7 +223,7 @@ describe('Event Module', function () {
 
     it('should return 6 frames', function () {
       var actual = evt.toFrames()
-      actual.should.have.length.of(6)
+      actual.should.have.lengthOf(6)
     })
 
     it('should return topic on frame 0', function () {

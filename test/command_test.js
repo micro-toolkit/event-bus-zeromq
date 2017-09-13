@@ -63,7 +63,7 @@ describe('Command Module', function () {
       it('should return command in frames', function () {
         var frames = toFrames(['SYNCSTART', '/test', 1])
         var actual = target.get(frames).toFrames()
-        actual.should.have.length.of(3)
+        actual.should.have.lengthOf(3)
       })
 
       it('should return cmd first frame', function () {
