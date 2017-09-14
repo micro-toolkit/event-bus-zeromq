@@ -22,6 +22,14 @@ This implementation will be using a centralized event bus, why? Well, fully dist
 
 To ensure a better reliability we can also apply the [Binary Star Pattern]() to have a configuration with a backup server.
 
+## Give it a try
+
+To run the examples using docker use the following:
+
+    $ docker-compose up
+
+This will run the event bus and simple subscriber and publisher, the publisher sends a message every second.
+
 ## Install
 
     $ npm i micro-toolkit-event-bus-zeromq --save
