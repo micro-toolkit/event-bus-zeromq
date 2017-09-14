@@ -1,0 +1,47 @@
+version: '2'
+services:
+  mongo_data:
+    image: busybox
+    container_name: micro.mongo-data
+    volumes:
+      - /data
+
+  mongo:
+    image: mongo:latest
+    container_name: micro.mongo
+    volumes_from:
+      - mongo_data
+    ports:
+      - "27017:27017"
+
+  bus:
+    image: microtoolkit/bus
+    container_name: micro.bus
+    ports:
+      - "5556:5556"
+      - "5557:5557"
+      - "5558:5558"
+    links:
+      - mongo
+    command: bin/bus
+    environment:
+      NODE_ENV: production
+      MICRO_BUS_SNAPSHOT: tcp://0.0.0.0:5556
+      MICRO_BUS_PUBLISHER: tcp://0.0.0.0:5557
+      MICRO_BUS_COLLECTOR: tcp://0.0.0.0:5558
+      MICRO_BUS_SEQ_PATH: /tmp/bus_sequence.dump
+      MICRO_BUS_DB_URI: mongodb://mongo/event_bus
+
+  subscriber:
+    image: microtoolkit/bus
+    container_name: micro.subscriber
+    command: bin/subscriber -s tcp://bus:5556 -a tcp://bus:5557
+    environment:
+      NODE_ENV: production
+
+  publisher:
+    image: microtoolkit/bus
+    container_name: micro.publisher
+    command: bin/publisher -a tcp://bus:5558
+    environment:
+      NODE_ENV: production

@@ -10,6 +10,16 @@ var help = {
   'u': 'Event Bus db url'
 }
 
+var defaultsEnvVars = {
+  snapshot: process.env.MICRO_BUS_SNAPSHOT,
+  publisher: process.env.MICRO_BUS_PUBLISHER,
+  collector: process.env.MICRO_BUS_COLLECTOR,
+  store: {
+    path: process.env.MICRO_BUS_SEQ_PATH,
+    dbUrl: process.env.MICRO_BUS_DB_URI
+  }
+}
+
 var defaults = {
   snapshot: 'tcp://127.0.0.1:5556',
   publisher: 'tcp://127.0.0.1:5557',
@@ -40,7 +50,7 @@ var conf = {
   }
 }
 
-var params = _.defaultsDeep({}, conf, defaults)
+var params = _.defaultsDeep({}, conf, defaultsEnvVars, defaults)
 var config = _.pick(params, ['snapshot', 'publisher', 'collector', 'store'])
 var busFactory = require('../lib/bus')
 var bus = busFactory.getInstance(config)
