@@ -194,4 +194,4 @@ Help command is available
 
 ### Command line using environment variables
 
-    $ MICRO_BUS_PUBLISHER=tcp://127.0.0.1:5557 MICRO_BUS_COLLECTOR=tcp://127.0.0.1:5558 MICRO_BUS_SEQ_PATH=/tmp/bus_sequence.dump MICRO_BUS_DB_URI=mongodb://localhost/event_bus bin/bus MICRO_BUS_SNAPSHOT=tcp://127.0.0.1:5556
+    $ MICRO_BUS_SNAPSHOT=tcp://127.0.0.1:5556 MICRO_BUS_PUBLISHER=tcp://127.0.0.1:5557 MICRO_BUS_COLLECTOR=tcp://127.0.0.1:5558 MICRO_BUS_SEQ_PATH=/tmp/bus_sequence.dump MICRO_BUS_DB_URI=mongodb://localhost/event_bus bin/bus
