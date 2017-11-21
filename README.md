@@ -12,7 +12,7 @@ So, we are adding PUB/SUB API in Micro-toolkit that can be used for this scenari
 
 ## ØMQ Event BUS
 
-The ØMQ implementation of event BUS will be based in the [Clone Pattern](http://zguide.ØMQ.org/py:chapter5#Reliable-Pub-Sub-Clone-Pattern), present in the ØMQ guid and from [Clustered Hashmap Protocol RFC](https://rfc.ØMQ.org/spec:12/CHP/).
+The ØMQ implementation of event BUS will be based in the [Clone Pattern](http://zguide.zeromq.org/py:chapter5#Reliable-Pub-Sub-Clone-Pattern), present in the ØMQ guid and from [Clustered Hashmap Protocol RFC](https://rfc.zeromq.org/spec:12/CHP/).
 
 **Why?**
 
@@ -20,7 +20,7 @@ Well we do have reference protocols and patterns on ØMQ guide, but they didn't 
 
 This implementation will be using a centralized event bus, why? Well, fully distributed architectures can be quite complex and require a lot of other tools to accomplish it. The goal here is to keep a balance between complexity and minimal setup required. Yes, we do know that is a single point of failure, but at least we also know that the complexity of the solution is smaller and easier to reason and maintain.
 
-To ensure a better reliability we can also apply the [Binary Star Pattern]() to have a configuration with a backup server.
+To ensure a better reliability we can also apply the [Binary Star Pattern](http://zguide.zeromq.org/page:all#High-Availability-Pair-Binary-Star-Pattern) to have a configuration with a backup server.
 
 ## Give it a try
 
