@@ -6,6 +6,10 @@ function insert(state, sequence, raw) {
   return Promise.resolve()
 }
 
+function lastSequence(state) {
+  var entry = _.maxBy(state, 'sequence') || null
+  return Promise.resolve(_.get(entry, 'sequence') || null)
+}
 
 function get(state, sequence) {
   var events = _.chain(state)
@@ -24,7 +28,8 @@ function getInstance() {
   var state = []
   return {
     insert: _.partial(insert, state),
-    get: _.partial(get, state)
+    get: _.partial(get, state),
+    lastSequence: _.partial(lastSequence, state)
   }
 }
 

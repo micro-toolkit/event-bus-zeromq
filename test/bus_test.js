@@ -27,7 +27,7 @@ describe('BUS Module', function () {
   beforeEach(function () {
     var sequenceDumpPath = '/tmp/bus_sequence_test.dump'
     var eventInstanceMemory = eventInstanceMemoryFactory.getInstance()
-    config = { store: { path: sequenceDumpPath, eventInstance: eventInstanceMemory } }
+    config = { store: { eventInstance: eventInstanceMemory } }
     collectorStub = zmqHelper.getSocketStub()
     pubStub = zmqHelper.getSocketStub()
     snapshotStub = zmqHelper.getSocketStub()
@@ -57,11 +57,6 @@ describe('BUS Module', function () {
     it('should obtain the logger micro.bus', function() {
       bus.getInstance(config)
       Logger.getLogger.should.have.been.calledWith('micro.bus')
-    })
-
-    it('should log the path used to load the sequence state', function () {
-      bus.getInstance(config)
-      log.info.should.have.been.calledWith('Loading sequence state from %s', config.store.path)
     })
 
     describe('collector stream', function () {
@@ -103,87 +98,107 @@ describe('BUS Module', function () {
   describe('connect', function () {
     it('should log connected streams information', function () {
       var target = bus.getInstance(config)
-      target.connect()
-      log.info.should.have.been.calledWith(
-        'BUS opened the folowing streams\n\tsnapshot: %s\n\tpublisher: %s\n\tcollector: %s',
-        'tcp://127.0.0.1:5556',
-        'tcp://127.0.0.1:5557',
-        'tcp://127.0.0.1:5558'
-      )
+      return target.connect().then(function () {
+        log.info.should.have.been.calledWith(
+          'BUS opened the folowing streams\n\tsnapshot: %s\n\tpublisher: %s\n\tcollector: %s',
+          'tcp://127.0.0.1:5556',
+          'tcp://127.0.0.1:5557',
+          'tcp://127.0.0.1:5558'
+        )
+      })
     })
 
     describe('collector stream', function () {
       it('should connect socket', function () {
-        var target = bus.getInstance()
-        target.connect()
-        collectorStub.bindSync.should.have.been.called
+        var target = bus.getInstance(config)
+        return target.connect().then(function () {
+          collectorStub.bindSync.should.have.been.called
+        })
       })
 
       it('should connect socket to default configuration', function () {
-        var target = bus.getInstance()
-        target.connect()
-        collectorStub.bindSync.should.have.been.calledWith('tcp://127.0.0.1:5558')
+        var target = bus.getInstance(config)
+        return target.connect().then(function () {
+          collectorStub.bindSync
+            .should.have.been.calledWith('tcp://127.0.0.1:5558')
+        })
       })
 
       it('should connect socket to publisher configuration + 1', function () {
-        var target = bus.getInstance({ publisher: 'tcp://127.0.0.1:7767' })
-        target.connect()
-        collectorStub.bindSync.should.have.been.calledWith('tcp://127.0.0.1:7768')
+        config.publisher = 'tcp://127.0.0.1:7767'
+        var target = bus.getInstance(config)
+        return target.connect().then(function () {
+          collectorStub.bindSync
+            .should.have.been.calledWith('tcp://127.0.0.1:7768')
+        })
       })
 
       it('should connect socket to collector configuration', function () {
-        var config = { collector: 'tcp://127.0.0.1:7777' }
+        config.collector = 'tcp://127.0.0.1:7777'
         var target = bus.getInstance(config)
-        target.connect()
-        collectorStub.bindSync.should.have.been.calledWith('tcp://127.0.0.1:7777')
+        return target.connect().then(function () {
+          collectorStub.bindSync
+            .should.have.been.calledWith('tcp://127.0.0.1:7777')
+        })
       })
     })
 
     describe('publisher stream', function () {
       it('should connect socket', function () {
-        var target = bus.getInstance()
-        target.connect()
-        pubStub.bindSync.should.have.been.called
+        var target = bus.getInstance(config)
+        return target.connect().then(function () {
+          pubStub.bindSync.should.have.been.called
+        })
       })
 
       it('should connect socket to default configuration', function () {
-        var target = bus.getInstance()
-        target.connect()
-        pubStub.bindSync.should.have.been.calledWith('tcp://127.0.0.1:5557')
+        var target = bus.getInstance(config)
+        return target.connect().then(function () {
+          pubStub.bindSync.should.have.been.calledWith('tcp://127.0.0.1:5557')
+        })
       })
 
       it('should connect socket to publisher configuration', function () {
-        var config = { publisher: 'tcp://127.0.0.1:7777' }
+        config.publisher = 'tcp://127.0.0.1:7777'
         var target = bus.getInstance(config)
-        target.connect()
-        pubStub.bindSync.should.have.been.calledWith('tcp://127.0.0.1:7777')
+        return target.connect().then(function () {
+          pubStub.bindSync.should.have.been.calledWith('tcp://127.0.0.1:7777')
+        })
       })
     })
 
     describe('snapshot stream', function () {
       it('should connect socket', function () {
-        var target = bus.getInstance()
-        target.connect()
-        snapshotStub.bindSync.should.have.been.called
+        var target = bus.getInstance(config)
+        return target.connect().then(function () {
+          snapshotStub.bindSync.should.have.been.called
+        })
       })
 
       it('should connect socket to default configuration', function () {
-        var target = bus.getInstance()
-        target.connect()
-        snapshotStub.bindSync.should.have.been.calledWith('tcp://127.0.0.1:5556')
+        var target = bus.getInstance(config)
+        return target.connect().then(function () {
+          snapshotStub.bindSync
+            .should.have.been.calledWith('tcp://127.0.0.1:5556')
+        })
       })
 
       it('should connect socket to publisher configuration - 1', function () {
-        var target = bus.getInstance({ publisher: 'tcp://127.0.0.1:7767' })
-        target.connect()
-        snapshotStub.bindSync.should.have.been.calledWith('tcp://127.0.0.1:7766')
+        config.publisher = 'tcp://127.0.0.1:7767'
+        var target = bus.getInstance(config)
+        return target.connect().then(function () {
+          snapshotStub.bindSync
+            .should.have.been.calledWith('tcp://127.0.0.1:7766')
+        })
       })
 
       it('should connect socket to snapshot configuration', function () {
-        var config = { snapshot: 'tcp://127.0.0.1:7777' }
+        config.snapshot = 'tcp://127.0.0.1:7777'
         var target = bus.getInstance(config)
-        target.connect()
-        snapshotStub.bindSync.should.have.been.calledWith('tcp://127.0.0.1:7777')
+        return target.connect().then(function () {
+          snapshotStub.bindSync
+            .should.have.been.calledWith('tcp://127.0.0.1:7777')
+        })
       })
 
       describe('handle SYNCSTART command', function () {
@@ -450,13 +465,12 @@ describe('BUS Module', function () {
     })
 
     it('should log state loaded from configuration', function () {
-      config.store.path = testConfig.supportDirPath + '/sequence.dump'
       var instance = bus.getInstance(config)
       log.info.reset()
 
-      instance.connect()
-
-      log.info.should.have.been.calledWith('Loaded state sequence=%s', 99)
+      return instance.connect().then(function () {
+        log.info.should.have.been.calledWith('Loaded state sequence=%s', 0)
+      })
     })
 
     it('should use sequence state 0 when no state stored', function () {
@@ -467,7 +481,6 @@ describe('BUS Module', function () {
         '2016-11-18T14:36:49.007Z', 'uuid', 'event-data'
       ])
 
-      config.store.path = testConfig.supportDirPath + '/unkown_sequence.dump'
       collectorStub.on = function(msg, fn) { handler = fn }
       var instance = bus.getInstance(config)
       instance.connect()
@@ -477,6 +490,8 @@ describe('BUS Module', function () {
     })
 
     it('should use sequence state loaded from configuration', function () {
+      config.store.eventInstance.insert(99, 'raw-data')
+
       var handler
       var evtFrames = toDataFrames([
         'identity',
@@ -484,13 +499,13 @@ describe('BUS Module', function () {
         '2016-11-18T14:36:49.007Z', 'uuid', 'event-data'
       ])
 
-      config.store.path = testConfig.supportDirPath + '/sequence.dump'
       collectorStub.on = function(msg, fn) { handler = fn }
       var instance = bus.getInstance(config)
-      instance.connect()
-      handler.apply(null, evtFrames)
+      return instance.connect().then(function () {
+        handler.apply(null, evtFrames)
 
-      pubStub.send.should.have.been.calledWith(match.has('1', 100))
+        pubStub.send.should.have.been.calledWith(match.has('1', 100))
+      })
     })
 
     it('should increment sequence on each new event', function () {
@@ -545,51 +560,25 @@ describe('BUS Module', function () {
 
   describe('.close', function () {
     it('should close collector socket', function () {
-      var target = bus.getInstance()
+      var target = bus.getInstance(config)
       target.connect()
       target.close()
       collectorStub.close.should.have.been.called
     })
 
     it('should close publisher socket', function () {
-      var target = bus.getInstance()
+      var target = bus.getInstance(config)
       target.connect()
       target.close()
       pubStub.close.should.have.been.called
     })
 
     it('should log close streams information', function () {
-      var target = bus.getInstance()
+      var target = bus.getInstance(config)
       target.connect()
       log.info.reset()
       target.close()
       log.info.should.have.been.calledWith('Closing BUS streams')
-    })
-
-    it('should save sequence number on file', function () {
-      var target = bus.getInstance(config)
-      target.connect()
-      target.close()
-
-      fs.existsSync(config.store.path).should.be.true
-    })
-
-    it('should persist last sequence number', function () {
-      var handler
-      var evtFrames = toDataFrames([
-        'identity',
-        '/test/1/topic', 1, 'producer',
-        '2016-11-18T14:36:49.007Z', 'uuid', 'event-data'
-      ])
-      collectorStub.on = function(msg, fn) { handler = fn }
-      var target = bus.getInstance(config)
-      target.connect()
-      handler.apply(null, evtFrames)
-      target.close()
-
-      fs.existsSync(config.store.path).should.be.true
-      var data = fs.readFileSync(config.store.path, 'utf8')
-      JSON.parse(data).should.be.eql(1)
     })
   })
 })
