@@ -6,7 +6,6 @@ var help = {
   's': 'Event Bus Snapshot Address',
   'p': 'Event Bus Publisher Address',
   'c': 'Event Bus Collector Address',
-  'f': 'Event Bus Sequence storage fullpath',
   'u': 'Event Bus db url'
 }
 
@@ -15,7 +14,6 @@ var defaultsEnvVars = {
   publisher: process.env.MICRO_BUS_PUBLISHER,
   collector: process.env.MICRO_BUS_COLLECTOR,
   store: {
-    path: process.env.MICRO_BUS_SEQ_PATH,
     dbUrl: process.env.MICRO_BUS_DB_URI
   }
 }
@@ -25,7 +23,6 @@ var defaults = {
   publisher: 'tcp://127.0.0.1:5557',
   collector: 'tcp://127.0.0.1:5558',
   store: {
-    path: '/tmp/bus_sequence.dump',
     dbUrl: 'mongodb://localhost/event_bus'
   }
 }
@@ -34,7 +31,6 @@ var helpDefaults = {
   s: defaults.snapshot,
   p: defaults.publisher,
   c: defaults.collector,
-  f: defaults.store.path,
   u: defaults.store.dbUrl
 }
 
@@ -45,7 +41,6 @@ var conf = {
   publisher: argv.p,
   collector: argv.c,
   store: {
-    path: argv.f,
     dbUrl: argv.u
   }
 }
