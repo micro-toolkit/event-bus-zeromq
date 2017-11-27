@@ -109,6 +109,7 @@ The event subscriber allows you to subscribe events from the event bus. You can 
     }
 
     process.on('SIGINT', close)
+    process.on('SIGTERM', close)
 
 ### Command line tool
 
