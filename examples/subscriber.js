@@ -15,9 +15,11 @@ subscriber.on('/examples', function(data){
 
 function close() {
   subscriber.close()
+  process.exit()
 }
 
 // eslint-disable-next-line no-process-exit
 process.on('SIGINT', close)
+process.on('SIGTERM', close)
 
 subscriber.connect()
