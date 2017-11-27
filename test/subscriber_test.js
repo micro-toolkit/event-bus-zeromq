@@ -32,9 +32,6 @@ describe('Subscriber Module', function () {
     zmqStub.withArgs('dealer').returns(dealerStub)
     zmqStub.withArgs('sub').returns(subStub)
 
-    var sequenceDumpPath = '/tmp/test_sequence.dump'
-    if (fs.existsSync(sequenceDumpPath)) { fs.unlinkSync(sequenceDumpPath) }
-
     var eventInstanceMemory = eventInstanceMemoryFactory.getInstance()
     config = { store: { instance: eventInstanceMemory } }
   })
