@@ -34,7 +34,7 @@
     },
     "debug": {
       "version": "2.6.9",
-      "from": "debug@>=2.6.9 <3.0.0",
+      "from": "debug@2.6.9",
       "resolved": "https://registry.npmjs.org/debug/-/debug-2.6.9.tgz"
     },
     "es6-promise": {
@@ -108,9 +108,9 @@
       "resolved": "https://registry.npmjs.org/mongodb-core/-/mongodb-core-2.1.17.tgz"
     },
     "mongoose": {
-      "version": "4.13.4",
+      "version": "4.13.5",
       "from": "mongoose@>=4.13.4 <5.0.0",
-      "resolved": "https://registry.npmjs.org/mongoose/-/mongoose-4.13.4.tgz"
+      "resolved": "https://registry.npmjs.org/mongoose/-/mongoose-4.13.5.tgz"
     },
     "mpath": {
       "version": "0.3.0",
@@ -123,10 +123,15 @@
       "resolved": "https://registry.npmjs.org/mpromise/-/mpromise-0.5.5.tgz"
     },
     "mquery": {
-      "version": "2.3.2",
-      "from": "mquery@2.3.2",
-      "resolved": "https://registry.npmjs.org/mquery/-/mquery-2.3.2.tgz",
+      "version": "2.3.3",
+      "from": "mquery@2.3.3",
+      "resolved": "https://registry.npmjs.org/mquery/-/mquery-2.3.3.tgz",
       "dependencies": {
+        "bluebird": {
+          "version": "3.5.0",
+          "from": "bluebird@3.5.0",
+          "resolved": "https://registry.npmjs.org/bluebird/-/bluebird-3.5.0.tgz"
+        },
         "sliced": {
           "version": "0.0.5",
           "from": "sliced@0.0.5",
