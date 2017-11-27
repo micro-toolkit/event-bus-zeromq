@@ -1,15 +1,15 @@
 var uuidGen = require('uuid')
 var zmq = require('zmq')
 var Logger = require('../logger')
-var fs = require('fs')
 var toFrames = require('./support/frames_helper').toFrames
 var toDataFrames = require('./support/frames_helper').toDataFrames
 var logHelper = require('./support/log_helper')
 var zmqHelper = require('./support/zmq_helper')
 var _ = require('lodash')
+var eventInstanceMemoryFactory = require('./support/memory_event_store')
 
 describe('Subscriber Module', function () {
-  var subStub, dealerStub, log, subscriber
+  var subStub, dealerStub, log, subscriber, config
 
   before(function () {
     // since log is obtain on module loading this to the trick
@@ -31,8 +31,8 @@ describe('Subscriber Module', function () {
     zmqStub.withArgs('dealer').returns(dealerStub)
     zmqStub.withArgs('sub').returns(subStub)
 
-    var sequenceDumpPath = '/tmp/test_sequence.dump'
-    if (fs.existsSync(sequenceDumpPath)) { fs.unlinkSync(sequenceDumpPath) }
+    var eventInstanceMemory = eventInstanceMemoryFactory.getInstance()
+    config = { store: { instance: eventInstanceMemory } }
   })
 
   afterEach(function () {
@@ -48,35 +48,35 @@ describe('Subscriber Module', function () {
 
     describe('snapshot stream', function () {
       it('open a dealer 0MQ socket', function () {
-        subscriber.getInstance()
+        subscriber.getInstance(config)
         zmq.socket.should.have.been.calledWith('dealer')
       })
 
       it('set 0MQ socket identity with unique generated value', function () {
         sinon.stub(uuidGen, "v4").returns('uuid')
-        subscriber.getInstance()
+        subscriber.getInstance(config)
         dealerStub.identity.should.be.eq('uuid')
       })
 
       it('should handle socket messages', function () {
-        subscriber.getInstance()
+        subscriber.getInstance(config)
         dealerStub.on.should.have.been.calledWith('message', match.func)
       })
     })
 
     describe('subscriber stream', function () {
       it('should open a sub 0MQ socket', function () {
-        subscriber.getInstance()
+        subscriber.getInstance(config)
         zmq.socket.should.have.been.calledWith('sub')
       })
 
       it('should detach subscriber socket from event loop', function () {
-        subscriber.getInstance()
+        subscriber.getInstance(config)
         subStub.unref.should.have.been.called
       })
 
       it('should handle socket messages', function () {
-        subscriber.getInstance()
+        subscriber.getInstance(config)
         subStub.on.should.have.been.calledWith('message', match.func)
       })
     })
@@ -84,146 +84,163 @@ describe('Subscriber Module', function () {
 
   describe('.connect', function () {
     it('should log connect information', function () {
-      var target = subscriber.getInstance()
-      target.connect()
-      log.info.should.have.been.calledWith(
-        'Subscriber opened the folowing streams\n\tsnapshot: %s\n\tsubscriber: %s',
-        'tcp://127.0.0.1:5556',
-        'tcp://127.0.0.1:5557'
-      )
+      var target = subscriber.getInstance(config)
+      return target.connect().then(function () {
+        log.info.should.have.been.calledWith(
+          'Subscriber opened the folowing streams\n\tsnapshot: %s\n\tsubscriber: %s',
+          'tcp://127.0.0.1:5556',
+          'tcp://127.0.0.1:5557'
+        )
+      })
     })
 
     describe('open a snapshot stream', function () {
       it('should connect socket', function () {
-        var target = subscriber.getInstance()
-        target.connect()
-        dealerStub.connect.should.have.been.called
+        var target = subscriber.getInstance(config)
+        return target.connect().then(function () {
+          dealerStub.connect.should.have.been.called
+        })
       })
 
       it('should connect socket to default configuration', function () {
-        var target = subscriber.getInstance()
-        target.connect()
-        dealerStub.connect.should.have.been.calledWith('tcp://127.0.0.1:5556')
+        var target = subscriber.getInstance(config)
+        return target.connect().then(function () {
+          dealerStub.connect.should.have.been.calledWith('tcp://127.0.0.1:5556')
+        })
       })
 
       it('should connect socket to subscriber config port - 1', function () {
-        var config = { address: 'tcp://127.0.0.1:6667' }
+        config.address = 'tcp://127.0.0.1:6667'
         var target = subscriber.getInstance(config)
-        target.connect()
-        dealerStub.connect.should.have.been.calledWith('tcp://127.0.0.1:6666')
+        return target.connect().then(function () {
+          dealerStub.connect.should.have.been.calledWith('tcp://127.0.0.1:6666')
+        })
       })
 
       it('should connect socket to snapshot config', function () {
-        var config = { snapshot: 'tcp://127.0.0.1:7777' }
+        config.snapshot = 'tcp://127.0.0.1:7777'
         var target = subscriber.getInstance(config)
-        target.connect()
-        dealerStub.connect.should.have.been.calledWith('tcp://127.0.0.1:7777')
+        return target.connect().then(function () {
+          dealerStub.connect.should.have.been.calledWith('tcp://127.0.0.1:7777')
+        })
       })
     })
 
     describe('open a subscriber stream', function () {
       it('should connect socket', function () {
-        var target = subscriber.getInstance()
-        target.connect()
-        subStub.connect.should.have.been.called
+        var target = subscriber.getInstance(config)
+        return target.connect().then(function () {
+          subStub.connect.should.have.been.called
+        })
       })
 
       it('should connect socket to default configuration', function () {
-        var target = subscriber.getInstance()
-        target.connect()
-        subStub.connect.should.have.been.calledWith('tcp://127.0.0.1:5557')
+        var target = subscriber.getInstance(config)
+        return target.connect().then(function () {
+          subStub.connect.should.have.been.calledWith('tcp://127.0.0.1:5557')
+        })
       })
 
       it('should connect socket to address configuration', function () {
-        var config = { address: 'tcp://127.0.0.1:7777' }
+        config.address = 'tcp://127.0.0.1:7777'
         var target = subscriber.getInstance(config)
-        target.connect()
-        subStub.connect.should.have.been.calledWith('tcp://127.0.0.1:7777')
+        return target.connect().then(function () {
+          subStub.connect.should.have.been.calledWith('tcp://127.0.0.1:7777')
+        })
       })
 
       it('should subscribe to topics', function () {
-        var target = subscriber.getInstance()
+        var target = subscriber.getInstance(config)
         target.on('/test/1/topic', _.noop)
-        target.connect()
-        subStub.subscribe.should.have.been.called
+        return target.connect().then(function () {
+          subStub.subscribe.should.have.been.called
+        })
       })
 
       it('should subscribe to topics registered', function () {
-        var target = subscriber.getInstance()
+        var target = subscriber.getInstance(config)
         target.on('/test/1/topic', _.noop)
         target.on('/test/2/topic', _.noop)
-        target.connect()
-        subStub.subscribe.should.have.been.calledWith('/test/1/topic')
-        subStub.subscribe.should.have.been.calledWith('/test/2/topic')
+        return target.connect().then(function () {
+          subStub.subscribe.should.have.been.calledWith('/test/1/topic')
+          subStub.subscribe.should.have.been.calledWith('/test/2/topic')
+        })
       })
 
       it('should subscribe topic before connect to stream', function () {
-        var target = subscriber.getInstance()
+        var target = subscriber.getInstance(config)
         target.on('/test/1/topic', _.noop)
-        target.connect()
-        subStub.subscribe.should.have.been.calledBefore(subStub.connect)
+        return target.connect().then(function () {
+          subStub.subscribe.should.have.been.calledBefore(subStub.connect)
+        })
       })
     })
 
     describe('do snapshot a sync', function () {
       it('should log that syncronization started', function () {
-        var target = subscriber.getInstance()
+        var target = subscriber.getInstance(config)
         target.on('/test/1/topic', _.noop)
         log.info.reset()
-        target.connect()
-        log.info.should.have.been.calledWith(
-          match.any,
-          'Started subscriber sync for snapshot=%s of topics %s',
-          0, '/test/1/topic'
-        )
+        return target.connect().then(function () {
+          log.info.should.have.been.calledWith(
+            match.any,
+            'Started subscriber sync for snapshot=%s of topics %s',
+            0, '/test/1/topic'
+          )
+        })
       })
 
       it('should send command with valid frame amount', function () {
-        var target = subscriber.getInstance()
+        var target = subscriber.getInstance(config)
         target.on('/test/1/topic', _.noop)
-        target.connect()
-        dealerStub.send.should.have.been.calledWith(
-          match.has('length', 3)
-        )
+        return target.connect().then(function () {
+          dealerStub.send.should.have.been.calledWith(
+            match.has('length', 3)
+          )
+        })
       })
 
       it('should send SYNCSTART command', function () {
-        var target = subscriber.getInstance()
+        var target = subscriber.getInstance(config)
         target.on('/test/1/topic', _.noop)
-        target.connect()
-        dealerStub.send.should.have.been.calledWith(
-          match.has('0', 'SYNCSTART')
-        )
+        return target.connect().then(function () {
+          dealerStub.send.should.have.been.calledWith(
+            match.has('0', 'SYNCSTART')
+          )
+        })
       })
 
       it('should send SYNCSTART command containing the registered topics', function () {
-        var target = subscriber.getInstance()
+        var target = subscriber.getInstance(config)
         target.on('/test/1/topic', _.noop)
         target.on('/test/1/topic2', _.noop)
-        target.connect()
-        dealerStub.send.should.have.been.calledWith(
-          match.has('1', '/test/1/topic,/test/1/topic2')
-        )
+        return target.connect().then(function () {
+          dealerStub.send.should.have.been.calledWith(
+            match.has('1', '/test/1/topic,/test/1/topic2')
+          )
+        })
       })
 
       it('should send SYNCSTART command containing last sequence', function () {
-        var path = testConfig.supportDirPath + '/sequence.dump'
-        var config = { store: { path: path } }
+        config.store.instance.insert(99, 'raw-data')
         var target = subscriber.getInstance(config)
         target.on('/test/1/topic', _.noop)
-        target.connect()
-        dealerStub.send.should.have.been.calledWith(
-          match.has('2', 99)
-        )
+        return target.connect().then(function () {
+          dealerStub.send.should.have.been.calledWith(
+            match.has('2', 99)
+          )
+        })
       })
 
       it('should send SYNCSTART command containing last sequence to zero when not available', function () {
-        var target = subscriber.getInstance()
+        var target = subscriber.getInstance(config)
         target.on('/test/1/topic', _.noop)
         target.connect()
-        dealerStub.send.should.have.been.calledWith(
-          match.has('2', 0)
-        )
+        return target.connect().then(function () {
+          dealerStub.send.should.have.been.calledWith(
+            match.has('2', 0)
+          )
+        })
       })
 
       it('should trigger snapshot events', function () {
@@ -236,11 +253,14 @@ describe('Subscriber Module', function () {
 
         var spy = sinon.spy()
         dealerStub.on = function(msg, fn) { handler = fn }
-        var target = subscriber.getInstance()
+        var target = subscriber.getInstance(config)
         target.on('/test/1/topic', spy)
-        target.connect()
-        handler.apply(null, evtFrames)
-        spy.should.have.been.calledWith('event-data')
+        return target.connect().then(function () {
+          return handler.apply(null, evtFrames)
+        })
+        .then(function () {
+          spy.should.have.been.calledWith('event-data')
+        })
       })
 
       it('should trigger snapshot events with partial topic match', function () {
@@ -252,11 +272,14 @@ describe('Subscriber Module', function () {
         ])
         var spy = sinon.spy()
         dealerStub.on = function(msg, fn) { handler = fn }
-        var target = subscriber.getInstance()
+        var target = subscriber.getInstance(config)
         target.on('/test/1', spy)
-        target.connect()
-        handler.apply(null, evtFrames)
-        spy.should.have.been.calledWith('event-data')
+        return target.connect().then(function () {
+          return handler.apply(null, evtFrames)
+        })
+        .then(function () {
+          spy.should.have.been.calledWith('event-data')
+        })
       })
 
       it('should not trigger snapshot events without topic match', function () {
@@ -268,11 +291,14 @@ describe('Subscriber Module', function () {
         ])
         var spy = sinon.spy()
         dealerStub.on = function(msg, fn) { handler = fn }
-        var target = subscriber.getInstance()
+        var target = subscriber.getInstance(config)
         target.on('/test/2', spy)
-        target.connect()
-        handler.apply(null, evtFrames)
-        spy.should.not.have.been.called
+        return target.connect().then(function () {
+          return handler.apply(null, evtFrames)
+        })
+        .then(function () {
+          spy.should.not.have.been.called
+        })
       })
 
       it('should log warning information about topic mismatch', function () {
@@ -283,14 +309,17 @@ describe('Subscriber Module', function () {
         ])
         var spy = sinon.spy()
         dealerStub.on = function(msg, fn) { handler = fn }
-        var target = subscriber.getInstance()
+        var target = subscriber.getInstance(config)
         target.on('/test/2', spy)
-        target.connect()
-        log.warn.reset()
-        handler.apply(null, evtFrames)
-        log.warn.should.have.been.calledWith(
-          'Received a event without topic match for topic: %s', '/test/1/topic'
-        )
+        return target.connect().then(function () {
+          log.warn.reset()
+          return handler.apply(null, evtFrames)
+        })
+        .then(function () {
+          log.warn.should.have.been.calledWith(
+            'Received a event without topic match for topic: %s', '/test/1/topic'
+          )
+        })
       })
 
       it('should handle a SYNCEND command', function () {
@@ -298,37 +327,47 @@ describe('Subscriber Module', function () {
         var evtFrames = toFrames(['SYNCEND', '/test/1/topic', 1])
         var spy = sinon.spy()
         dealerStub.on = function(msg, fn) { handler = fn }
-        var target = subscriber.getInstance()
+        var target = subscriber.getInstance(config)
         target.on('/test/1/topic', spy)
-        target.connect()
-        handler.apply(null, evtFrames)
-        spy.should.not.have.been.called
+        return target.connect().then(function () {
+          return handler.apply(null, evtFrames)
+        })
+        .then(function () {
+          spy.should.not.have.been.called
+        })
       })
 
       it('should log snapshot sync completion', function () {
         var handler
         var evtFrames = toFrames(['SYNCEND', '/test/1/topic', 1])
         dealerStub.on = function(msg, fn) { handler = fn }
-        var target = subscriber.getInstance()
+        var target = subscriber.getInstance(config)
         target.on('/test/1/topic', _.noop)
-        target.connect()
-        log.info.reset()
-        handler.apply(null, evtFrames)
-        log.info.should.have.been.calledWith(
-          'Finished subscriber sync snapshot=%s for topics %s',
-          1, '/test/1/topic'
-        )
+
+        return target.connect().then(function () {
+          log.info.reset()
+          return handler.apply(null, evtFrames)
+        })
+        .then(function () {
+          log.info.should.have.been.calledWith(
+            'Finished subscriber sync snapshot=%s for topics %s',
+            1, '/test/1/topic'
+          )
+        })
       })
 
       it('should attach subscriber socket to event loop', function () {
         var handler
         var evtFrames = toFrames(['SYNCEND', '/test/1/topic', 1])
         dealerStub.on = function(msg, fn) { handler = fn }
-        var target = subscriber.getInstance()
+        var target = subscriber.getInstance(config)
         target.on('/test/1/topic', _.noop)
-        target.connect()
-        handler.apply(null, evtFrames)
-        subStub.ref.should.have.been.called
+        return target.connect().then(function () {
+          return handler.apply(null, evtFrames)
+        })
+        .then(function () {
+          subStub.ref.should.have.been.called
+        })
       })
 
       it('should attach subscriber socket only after SYNCEND command', function () {
@@ -340,23 +379,27 @@ describe('Subscriber Module', function () {
         ])
 
         dealerStub.on = function(msg, fn) { handler = fn }
-        var target = subscriber.getInstance()
+        var target = subscriber.getInstance(config)
         target.on('/test/1/topic', _.noop)
-        target.connect()
-        handler.apply(null, evtFrames)
-        subStub.ref.should.not.have.been.called
+
+        return target.connect().then(function () {
+          return handler.apply(null, evtFrames)
+        })
+        .then(function () {
+          subStub.ref.should.not.have.been.called
+        })
       })
     })
   })
 
   describe('.on', function () {
     it('should register topic', function(){
-      var target = subscriber.getInstance()
+      var target = subscriber.getInstance(config)
       target.on('/test/1/topic', _.noop)
     })
 
     it('should log information about topic registration', function() {
-      var target = subscriber.getInstance()
+      var target = subscriber.getInstance(config)
       log.info.reset()
       target.on('/test/1/topic', _.noop)
       log.info.should.have.been.calledWith(
@@ -374,12 +417,14 @@ describe('Subscriber Module', function () {
 
       var spy = sinon.spy()
       subStub.on = function(msg, fn) { handler = fn }
-      var target = subscriber.getInstance()
+      var target = subscriber.getInstance(config)
       target.on('/test/1/topic', spy)
-      target.connect()
-      handler.apply(null, evtFrames)
-
-      spy.should.have.been.calledWith('event-data')
+      return target.connect().then(function () {
+        return handler.apply(null, evtFrames)
+      })
+      .then(function () {
+        spy.should.have.been.calledWith('event-data')
+      })
     })
 
     it('should receive events from subscribed topics with partial match', function () {
@@ -392,11 +437,14 @@ describe('Subscriber Module', function () {
 
       var spy = sinon.spy()
       subStub.on = function(msg, fn) { handler = fn }
-      var target = subscriber.getInstance()
+      var target = subscriber.getInstance(config)
       target.on('/test/1', spy)
-      target.connect()
-      handler.apply(null, evtFrames)
-      spy.should.have.been.calledWith('event-data')
+      return target.connect().then(function () {
+        return handler.apply(null, evtFrames)
+      })
+      .then(function () {
+        spy.should.have.been.calledWith('event-data')
+      })
     })
 
     it('should trigger events with sequence higher snapshot', function () {
@@ -412,14 +460,16 @@ describe('Subscriber Module', function () {
 
       var spy = sinon.spy()
       subStub.on = function(msg, fn) { handler = fn }
-      var target = subscriber.getInstance()
+      var target = subscriber.getInstance(config)
       target.on('/test/1', spy)
-      target.connect()
-
-      dealerHandler.apply(null, syncEndFrames)
-      handler.apply(null, evtFrames)
-
-      spy.should.have.been.calledWith('event-data')
+      return target.connect().then(function () {
+        return dealerHandler.apply(null, syncEndFrames)
+      }).then(function () {
+        return handler.apply(null, evtFrames)
+      })
+      .then(function () {
+        spy.should.have.been.calledWith('event-data')
+      })
     })
 
     it('should not trigger events with sequence bellow snapshot', function () {
@@ -435,14 +485,18 @@ describe('Subscriber Module', function () {
 
       var spy = sinon.spy()
       subStub.on = function(msg, fn) { handler = fn }
-      var target = subscriber.getInstance()
+      var target = subscriber.getInstance(config)
       target.on('/test/1', spy)
       target.connect()
 
-      dealerHandler.apply(null, syncEndFrames)
-      handler.apply(null, evtFrames)
-
-      spy.should.not.have.been.called
+      return target.connect().then(function () {
+        return dealerHandler.apply(null, syncEndFrames)
+      }).then(function () {
+        return handler.apply(null, evtFrames)
+      })
+      .then(function () {
+        spy.should.not.have.been.called
+      })
     })
 
     it('should receive events from subscribed topics to all registered handlers', function () {
@@ -456,13 +510,17 @@ describe('Subscriber Module', function () {
       var firstSpy = sinon.spy()
       var secondSpy = sinon.spy()
       subStub.on = function(msg, fn) { handler = fn }
-      var target = subscriber.getInstance()
+      var target = subscriber.getInstance(config)
       target.on('/test/1/topic', firstSpy)
       target.on('/test/1/topic', secondSpy)
-      target.connect()
-      handler.apply(null, evtFrames)
-      firstSpy.should.have.been.calledWith('event-data')
-      secondSpy.should.have.been.calledWith('event-data')
+
+      return target.connect().then(function () {
+        return handler.apply(null, evtFrames)
+      })
+      .then(function () {
+        firstSpy.should.have.been.calledWith('event-data')
+        secondSpy.should.have.been.calledWith('event-data')
+      })
     })
 
     it('should receive complex data properly decoded', function () {
@@ -474,50 +532,35 @@ describe('Subscriber Module', function () {
 
       var spy = sinon.spy()
       subStub.on = function(msg, fn) { handler = fn }
-      var target = subscriber.getInstance()
+      var target = subscriber.getInstance(config)
       target.on('/test/1/topic', spy)
-      target.connect()
-      handler.apply(null, evtFrames)
 
-      spy.should.have.been.calledWith({mydata: {isParsed: ['properly']}})
+      return target.connect().then(function () {
+        return handler.apply(null, evtFrames)
+      })
+      .then(function () {
+        spy.should.have.been.calledWith({mydata: {isParsed: ['properly']}})
+      })
     })
   })
 
   describe('.close', function () {
     it('should close subscriber stream', function () {
-      var target = subscriber.getInstance()
+      var target = subscriber.getInstance(config)
       target.connect()
       target.close()
       subStub.close.should.have.been.called
     })
 
     it('should close snapshot stream', function () {
-      var target = subscriber.getInstance()
+      var target = subscriber.getInstance(config)
       target.connect()
       target.close()
       dealerStub.close.should.have.been.called
     })
 
-    it('should persist last sequence number', function () {
-      var handler
-      var evtFrames = toFrames([
-        '/test/1/topic', 666, 'producer',
-        '2016-11-18T14:36:49.007Z', 'uuid', 'event-data'
-      ])
-      subStub.on = function(msg, fn) { handler = fn }
-      var config = {store: { path: '/tmp/test_sequence.dump' }}
-      var target = subscriber.getInstance(config)
-      target.on('/test/1/topic', _.noop)
-      target.connect()
-      handler.apply(null, evtFrames)
-      target.close()
-
-      var data = fs.readFileSync(config.store.path, 'utf8')
-      JSON.parse(data).should.be.eql(666)
-    })
-
     it('should log close information', function () {
-      var target = subscriber.getInstance()
+      var target = subscriber.getInstance(config)
       target.connect()
       log.info.reset()
       target.close()
