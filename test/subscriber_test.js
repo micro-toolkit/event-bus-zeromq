@@ -110,7 +110,7 @@ describe('Subscriber Module', function () {
       })
 
       it('should connect socket to subscriber config port - 1', function () {
-        var config = { address: 'tcp://127.0.0.1:6667' }
+        config.address = 'tcp://127.0.0.1:6667'
         var target = subscriber.getInstance(config)
         return target.connect().then(function () {
           dealerStub.connect.should.have.been.calledWith('tcp://127.0.0.1:6666')
@@ -118,7 +118,7 @@ describe('Subscriber Module', function () {
       })
 
       it('should connect socket to snapshot config', function () {
-        var config = { snapshot: 'tcp://127.0.0.1:7777' }
+        config.snapshot = 'tcp://127.0.0.1:7777'
         var target = subscriber.getInstance(config)
         return target.connect().then(function () {
           dealerStub.connect.should.have.been.calledWith('tcp://127.0.0.1:7777')
@@ -142,7 +142,7 @@ describe('Subscriber Module', function () {
       })
 
       it('should connect socket to address configuration', function () {
-        var config = { address: 'tcp://127.0.0.1:7777' }
+        config.address = 'tcp://127.0.0.1:7777'
         var target = subscriber.getInstance(config)
         return target.connect().then(function () {
           subStub.connect.should.have.been.calledWith('tcp://127.0.0.1:7777')
