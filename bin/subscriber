@@ -5,18 +5,23 @@ var _ = require('lodash')
 var help = {
   's': 'Event Bus Snapshot Address',
   'a': 'Event Bus Address',
-  't': 'Topics to subscribe events (eg: /a/b,/ac)'
+  't': 'Topics to subscribe events (eg: /a/b,/ac)',
+  'u': 'Event Bus db url'
 }
 
 var defaults = {
   address: 'tcp://127.0.0.1:5557',
-  topics: '/examples'
+  topics: '/examples',
+  store: {
+    dbUrl: 'mongodb://localhost/event_bus_subscriber'
+  }
 }
 
 var helpDefaults = {
   s: 'tcp://127.0.0.1:5556',
   a: 'tcp://127.0.0.1:5557',
-  t: '/examples'
+  t: '/examples',
+  u: defaults.store.dbUrl
 }
 
 var argv = require('./setup')('bin/subscriber', help, helpDefaults)
@@ -25,13 +30,15 @@ var conf = {
   snapshot: argv.s || null,
   address: argv.a,
   topics: argv.t,
-  store: { path: '/tmp/sequence.dump' }
+  store: {
+    dbUrl: argv.u
+  }
 }
 
 var Logger = require('logger-facade-nodejs')
 var log = Logger.getLogger('subscriber')
 
-var params = _.defaults({}, conf, defaults)
+var params = _.defaultsDeep({}, conf, defaults)
 var config = _.pick(params, ['address', 'topics', 'store'])
 var subscriberFactory = require('../lib/subscriber')
 var subscriber = subscriberFactory.getInstance(config)
