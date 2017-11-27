@@ -103,6 +103,14 @@ The event subscriber allows you to subscribe events from the event bus. You can 
     // start receiving events
     subscriber.connect()
 
+    function close() {
+      subscriber.close()
+      process.exit()
+    }
+
+    process.on('SIGINT', close)
+    process.on('SIGTERM', close)
+
 ### Command line tool
 
 Receive events from topic '/examples'

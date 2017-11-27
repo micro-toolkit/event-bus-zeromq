@@ -44,6 +44,7 @@ subscriber.connect()
 
 function close() {
   subscriber.close()
+  process.exit()
 }
 
 process.on('SIGINT', close)
