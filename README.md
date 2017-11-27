@@ -87,7 +87,9 @@ The event subscriber allows you to subscribe events from the event bus. You can 
       // optional, default value is tcp://127.0.0.1:5557
       address: 'tcp://127.0.0.1:5557',
       // optional
-      store: { path: '/tmp/sequence.dump' }
+      store: {
+        dbUrl: 'mongodb://localhost/event_bus_subscriber'
+      }
     }
     var bus = require('micro-toolkit-event-bus-zeromq')
     var subscriber = bus.getSubscriber(config)
@@ -122,11 +124,12 @@ Help command is available
     $ bin/subscriber --debug
 
     With parameters
-    $ bin/subscriber -s tcp://127.0.0.1:5556 -a tcp://127.0.0.1:5557 -t /examples
+    $ bin/subscriber -s tcp://127.0.0.1:5556 -a tcp://127.0.0.1:5557 -t /examples -u mongodb://localhost/event_bus_sub
 
      -s: Event Bus Snapshot Address
      -a: Event Bus Address
      -t: Topics to subscribe events (eg: /a/b,/ac)
+     -u: Event Bus db url
 
 ### Command line using global install
 
