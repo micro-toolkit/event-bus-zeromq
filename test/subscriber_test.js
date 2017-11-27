@@ -1,7 +1,6 @@
 var uuidGen = require('uuid')
 var zmq = require('zmq')
 var Logger = require('../logger')
-var fs = require('fs')
 var toFrames = require('./support/frames_helper').toFrames
 var toDataFrames = require('./support/frames_helper').toDataFrames
 var logHelper = require('./support/log_helper')
@@ -10,7 +9,7 @@ var _ = require('lodash')
 var eventInstanceMemoryFactory = require('./support/memory_event_store')
 
 describe('Subscriber Module', function () {
-  var subStub, dealerStub, log, subscriber
+  var subStub, dealerStub, log, subscriber, config
 
   before(function () {
     // since log is obtain on module loading this to the trick
