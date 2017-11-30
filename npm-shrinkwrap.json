@@ -1,6 +1,6 @@
 {
   "name": "micro-toolkit-event-bus-zeromq",
-  "version": "1.1.1",
+  "version": "2.0.0",
   "dependencies": {
     "async": {
       "version": "2.1.4",
