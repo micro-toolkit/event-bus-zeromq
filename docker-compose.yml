@@ -29,13 +29,12 @@ services:
       MICRO_BUS_SNAPSHOT: tcp://0.0.0.0:5556
       MICRO_BUS_PUBLISHER: tcp://0.0.0.0:5557
       MICRO_BUS_COLLECTOR: tcp://0.0.0.0:5558
-      MICRO_BUS_SEQ_PATH: /tmp/bus_sequence.dump
       MICRO_BUS_DB_URI: mongodb://mongo/event_bus
 
   subscriber:
     image: microtoolkit/bus
     container_name: micro.subscriber
-    command: bin/subscriber -s tcp://bus:5556 -a tcp://bus:5557
+    command: bin/subscriber -s tcp://bus:5556 -a tcp://bus:5557 -u mongodb://mongo/event_bus_subscriber
     environment:
       NODE_ENV: production
 
