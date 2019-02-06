@@ -42,7 +42,7 @@
     "sinon-chai": "^3.3.0"
   },
   "engines": {
-    "node": ">=4.5"
+    "node": ">=6"
   },
   "dependencies": {
     "lodash": "^4.17.11",
