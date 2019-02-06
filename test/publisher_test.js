@@ -1,5 +1,5 @@
 var uuidGen = require('uuid')
-var zmq = require('zmq')
+var zmq = require('zeromq')
 var Logger = require('../logger')
 var logHelper = require('./support/log_helper')
 var zmqHelper = require('./support/zmq_helper')

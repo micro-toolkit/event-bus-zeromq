@@ -1,5 +1,5 @@
 var uuidGen = require('uuid')
-var zmq = require('zmq')
+var zmq = require('zeromq')
 var Logger = require('../logger')
 var toFrames = require('./support/frames_helper').toFrames
 var toDataFrames = require('./support/frames_helper').toDataFrames
