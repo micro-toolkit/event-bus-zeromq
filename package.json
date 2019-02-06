@@ -32,8 +32,8 @@
   },
   "homepage": "https://github.com/micro-toolkit/event-bus-zeromq#readme",
   "devDependencies": {
-    "bluebird": "^3.5.1",
-    "chai": "^4.1.2",
+    "bluebird": "^3.5.3",
+    "chai": "^4.2.0",
     "eslint": "^4.12.0",
     "eslint-plugin-node": "^5.2.1",
     "istanbul": "^0.4.5",
@@ -45,13 +45,13 @@
     "node": ">=4"
   },
   "dependencies": {
-    "lodash": "^4.17.4",
-    "logger-facade-console-plugin-nodejs": "^1.0.0",
-    "logger-facade-nodejs": "^1.0.1",
+    "lodash": "^4.17.11",
+    "logger-facade-console-plugin-nodejs": "^2.0.0",
+    "logger-facade-nodejs": "^2.0.0",
     "micro-toolkit-event-storage-mongo": "^1.1.0",
     "minimist": "^1.2.0",
     "msgpack": "^1.0.2",
-    "uuid": "^3.1.0",
+    "uuid": "^3.3.2",
     "zmq": "^2.15.3"
   }
 }
