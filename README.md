@@ -5,6 +5,8 @@
 
 # Micro-toolkit Event BUS
 
+[![NPM version](https://badge.fury.io/js/micro-toolkit-event-bus-zeromq.svg)](http://badge.fury.io/js/micro-toolkit-event-bus-zeromq)
+
 Micro-toolkit only supported REQ/REP flows, this type of flow is very useful to expose the microservices in facade API's and even used to communicate between microservices. Over time using REQ/REP patterns to choreograph the communication between microservices isn't enough. On this case a event driven approach can allow you to solve this communication in a more scalable and less complex way.
 
 So, we are adding PUB/SUB API in Micro-toolkit that can be used for this scenarios. This API will be agnostic to the implementations. Several implementations can implement the duck type contract and be used to perform this. Since this project is using ØMQ heavily, the first reference implementation will be done using ØMQ. Later other implementations can be added.
