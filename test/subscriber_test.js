@@ -1,5 +1,5 @@
 var uuidGen = require('uuid')
-var zmq = require('zmq')
+var zmq = require('zeromq')
 var Logger = require('../logger')
 var toFrames = require('./support/frames_helper').toFrames
 var toDataFrames = require('./support/frames_helper').toDataFrames
@@ -180,7 +180,7 @@ describe('Subscriber Module', function () {
       it('should log that syncronization started', function () {
         var target = subscriber.getInstance(config)
         target.on('/test/1/topic', _.noop)
-        log.info.reset()
+        log.info.resetHistory()
         return target.connect().then(function () {
           log.info.should.have.been.calledWith(
             match.any,
@@ -312,7 +312,7 @@ describe('Subscriber Module', function () {
         var target = subscriber.getInstance(config)
         target.on('/test/2', spy)
         return target.connect().then(function () {
-          log.warn.reset()
+          log.warn.resetHistory()
           return handler.apply(null, evtFrames)
         })
         .then(function () {
@@ -345,7 +345,7 @@ describe('Subscriber Module', function () {
         target.on('/test/1/topic', _.noop)
 
         return target.connect().then(function () {
-          log.info.reset()
+          log.info.resetHistory()
           return handler.apply(null, evtFrames)
         })
         .then(function () {
@@ -400,7 +400,7 @@ describe('Subscriber Module', function () {
 
     it('should log information about topic registration', function() {
       var target = subscriber.getInstance(config)
-      log.info.reset()
+      log.info.resetHistory()
       target.on('/test/1/topic', _.noop)
       log.info.should.have.been.calledWith(
         'Subscriber listens to the folowing topic: \'%s\'',
@@ -562,7 +562,7 @@ describe('Subscriber Module', function () {
     it('should log close information', function () {
       var target = subscriber.getInstance(config)
       target.connect()
-      log.info.reset()
+      log.info.resetHistory()
       target.close()
       log.info.should.have.been.calledWith('Closed subscriber streams')
     })

@@ -1,6 +1,6 @@
 var zmqHelper = require('./support/zmq_helper')
 var logHelper = require('./support/log_helper')
-var zmq = require('zmq')
+var zmq = require('zeromq')
 var Logger = require('../logger')
 var toFrames = require('./support/frames_helper').toFrames
 var toDataFrames = require('./support/frames_helper').toDataFrames
@@ -213,7 +213,7 @@ describe('BUS Module', function () {
         })
 
         it('should log sync start information', function () {
-          log.info.reset()
+          log.info.resetHistory()
           handler.apply(null, frames)
           log.info.should.have.been.calledWith(
             'Sending snapshot=%d for subtrees=%s', 0, '/test/1/topic'
@@ -398,7 +398,7 @@ describe('BUS Module', function () {
 
           describe('when sync finishes', function () {
             it('should log that sync finished', function () {
-              log.info.reset()
+              log.info.resetHistory()
               return handler.apply(null, frames)
                 .then(function () {
                   log.info.should.have.been.calledWith(
@@ -466,7 +466,7 @@ describe('BUS Module', function () {
 
     it('should log state loaded from configuration', function () {
       var instance = bus.getInstance(config)
-      log.info.reset()
+      log.info.resetHistory()
 
       return instance.connect().then(function () {
         log.info.should.have.been.calledWith('Loaded state sequence=%s', 0)
@@ -519,7 +519,7 @@ describe('BUS Module', function () {
       collectorStub.on = function(msg, fn) { handler = fn }
       bus.getInstance(config)
       handler.apply(null, evtFrames)
-      pubStub.send.reset()
+      pubStub.send.resetHistory()
       handler.apply(null, evtFrames)
 
       pubStub.send.should.have.been.calledWith(
@@ -576,7 +576,7 @@ describe('BUS Module', function () {
     it('should log close streams information', function () {
       var target = bus.getInstance(config)
       target.connect()
-      log.info.reset()
+      log.info.resetHistory()
       target.close()
       log.info.should.have.been.calledWith('Closing BUS streams')
     })
