@@ -1,6 +1,6 @@
 {
   "name": "micro-toolkit-event-bus-zeromq",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "description": "The ØMQ implementation of event BUS based on ØMQ Clone Pattern and Clustered Hashmap Protocol.",
   "main": "index.js",
   "scripts": {
