@@ -59,20 +59,9 @@ describe('Publisher Module', function () {
       publisher.getInstance.should.throw(/Invalid producer id/)
     })
 
-    it('should open a zmq dealer socket', function () {
+    it('should not create a socket yet', function () {
       publisher.getInstance(config)
-      zmq.socket.should.have.been.calledWith('dealer')
-    })
-
-    it('should connect socket to configuration address', function () {
-      config.address = 'tcp://127.0.0.1:6668'
-      publisher.getInstance(config)
-      socket.connect.should.have.been.calledWith(config.address)
-    })
-
-    it('should connect socket to default address when not specified', function () {
-      publisher.getInstance(config)
-      socket.connect.should.have.been.calledWith('tcp://127.0.0.1:5558')
+      zmq.socket.should.not.have.been.called
     })
   })
 
@@ -81,6 +70,29 @@ describe('Publisher Module', function () {
 
     beforeEach(function () {
       target = publisher.getInstance(config)
+    })
+
+    it('should open a zmq dealer socket', function () {
+      target.send('/topic/test', "data")
+      zmq.socket.should.have.been.calledWith('dealer')
+    })
+
+    it('should connect socket to configuration address', function () {
+      config.address = 'tcp://127.0.0.1:6668'
+      target = publisher.getInstance(config)
+      target.send('/topic/test', "data")
+      socket.connect.should.have.been.calledWith(config.address)
+    })
+
+    it('should connect socket to default address when not specified', function () {
+      target.send('/topic/test', "data")
+      socket.connect.should.have.been.calledWith('tcp://127.0.0.1:5558')
+    })
+
+    it('should disconnect socket afterwards', function () {
+      target.send('/topic/test', "data")
+      socket.disconnect.should.have.been.calledWith('tcp://127.0.0.1:5558')
+        .and.calledAfter(socket.send)
     })
 
     it('should log that event was sent', function () {
@@ -99,7 +111,7 @@ describe('Publisher Module', function () {
 
     it('should send a event', function () {
       target.send('/topic/test', "data")
-      socket.send.should.have.been.called
+      socket.send.should.have.been.calledAfter(socket.connect)
     })
 
     it('should send a 0MQ message with 6 frames', function () {
