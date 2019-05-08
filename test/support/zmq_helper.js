@@ -9,7 +9,8 @@ function getSocketStub() {
     ref: sinon.spy(),
     close: sinon.spy(),
     send: sinon.spy(),
-    bindSync: sinon.spy()
+    bindSync: sinon.spy(),
+    setsockopt: sinon.spy(),
   }
 }
 module.exports = {

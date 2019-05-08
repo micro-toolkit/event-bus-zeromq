@@ -79,6 +79,12 @@ describe('Subscriber Module', function () {
         subscriber.getInstance(config)
         subStub.on.should.have.been.calledWith('message', match.func)
       })
+
+      it('should set keep alive on the socket', function () {
+        subscriber.getInstance(config)
+        subStub.setsockopt.should.have.been.calledWith(zmq.ZMQ_TCP_KEEPALIVE, 1)
+      })
+
     })
   })
 
