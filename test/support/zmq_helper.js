@@ -3,6 +3,7 @@ var sinon = require('sinon')
 function getSocketStub() {
   return {
     connect: sinon.spy(),
+    disconnect: sinon.spy(),
     subscribe: sinon.spy(),
     on: sinon.spy(),
     unref: sinon.spy(),
