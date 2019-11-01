@@ -78,7 +78,7 @@ Help command is available
 
 ## Event Subscriber
 
-The event subscriber allows you to subscribe events from the event bus. You can use a programatic interface or the command line tool.
+The event subscriber allows you to subscribe events from the event bus. You can use a programatic interface or the command line tool. The subscriber stores the last sequence number in the given store path. When connected to the bus, the subscriber will request for all the events after that sequence through the snapshot connection. This will ensure no events are lost if the subscriber goes down and comes back up.
 
 ### Library
 
@@ -148,7 +148,7 @@ Help command is available
 
 ## Event BUS
 
-The event subscriber allows you to subscribe events from the event bus. You can use a programatic interface or the command line tool.
+The event bus collects events from publishers and publishes it to the subscribers. You can use a programatic interface or the command line tool. The bus records evrey event that it collected to the given MongoDB database and it also records the sequence number in the file system in the given path. This way it can repeat the events to the subscribers who have been absent when a certain event was published.
 
 ### Library
 
@@ -158,7 +158,12 @@ The event subscriber allows you to subscribe events from the event bus. You can 
       // optional, default value is tcp://127.0.0.1:5557
       publisher: 'tcp://127.0.0.1:5557',
       // optional, it will use publisher + 1 when not specified
-      collector: 'tcp://127.0.0.1:5558'
+      collector: 'tcp://127.0.0.1:5558',
+      // optional
+      store: {
+        path: '/tmp/bus_sequence.dump',
+        dbUrl: 'mongodb://localhost/event_bus'
+      }
     }
     var busFactory = require('micro-toolkit-event-bus-zeromq')
     var bus = busFactory.getInstance(config)
